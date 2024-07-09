@@ -45,42 +45,55 @@ export function tokenize(srcCode: string): Token[] {
   const src = srcCode.split("");
   let tempWord = "";
 
+  // =========== Methods ============
+  // append whole int or alpha word to token functions
+  const saveInt = () => {
+    tokens.push(token(tempWord, TokenType.Number));
+  };
+
+  const saveAlpha = () => {
+    const reserved = KEYWORDS[tempWord];
+    if (reserved) {
+      tokens.push(token(tempWord, reserved));
+    } else {
+      tokens.push(token(tempWord, TokenType.Identifier));
+    }
+  };
+
+  const finalHandle = (index: number) => {
+    // handling numeric saved word
+    if (isInt(tempWord)) {
+      saveInt();
+    } // handling aphabetical saved word
+    else if (isAlpha(tempWord)) {
+      saveAlpha();
+    } // handling escape characters word
+    else if (!isEscapeChar(src[index]) && tempWord) {
+      console.log("Unhandled character:", src[index]);
+      Deno.exit(1);
+    }
+    tempWord = "";
+  };
+
+  // =========== Loop ============
   for (let i = 0; i < src.length; i++) {
     if (src[i] == "(") {
+      finalHandle(i);
       tokens.push(token(src[i], TokenType.OpenParen));
       continue;
     }
     if (src[i] == ")") {
+      finalHandle(i);
       tokens.push(token(src[i], TokenType.CloseParen));
       continue;
     }
-    if (["+", "-", "*", "/"].includes(src[i])) {
+    if (["+", "-", "*", "/", "%"].includes(src[i])) {
+      finalHandle(i);
       tokens.push(token(src[i], TokenType.BinaryOperator));
       continue;
     }
 
-    const saveInt = () => {
-      tokens.push(token(tempWord, TokenType.Number));
-    };
-
-    const saveAlpha = () => {
-      const reserved = KEYWORDS[tempWord];
-      if (reserved) {
-        tokens.push(token(tempWord, reserved));
-      } else {
-        tokens.push(token(tempWord, TokenType.Identifier));
-      }
-    };
-
-    // multichar tokens
-    if (isAlpha(src[i])) {
-      tempWord += src[i];
-      if (i + 1 == src.length) {
-        saveAlpha();
-      }
-      continue;
-    }
-
+    // if int or last
     if (isInt(src[i])) {
       tempWord += src[i];
       if (i + 1 == src.length) {
@@ -89,20 +102,17 @@ export function tokenize(srcCode: string): Token[] {
       continue;
     }
 
-    // handling numeric saved word
-    if (isInt(tempWord)) {
-      saveInt();
-    } // handling aphabetical saved word
-    else if (isAlpha(tempWord)) {
-      saveAlpha();
-    } // handling escape characters word
-    else if (!isEscapeChar(src[i])) {
-      console.log("Unhandled character: ", src[i]);
-      Deno.exit(1);
+    // if alpha or last
+    if (isAlpha(src[i])) {
+      tempWord += src[i];
+      if (i + 1 == src.length) {
+        saveAlpha();
+      }
+      continue;
     }
 
     // clean the temp word
-    tempWord = "";
+    finalHandle(i);
   }
 
   tokens.push({ value: "EndOfFile", type: TokenType.EOF });
@@ -114,4 +124,4 @@ export function tokenize(srcCode: string): Token[] {
 //   console.log(token);
 // }
 
-// console.log(tokenize("xullas a endi 10;"));
+// console.log(tokenize("xullas a endi (4 + 23)"));

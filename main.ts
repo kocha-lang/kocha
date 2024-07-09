@@ -3,7 +3,7 @@ import Parser from "./frontend/parser.ts";
 function repl() {
   const parser = new Parser();
 
-  console.log("Repl 1.0");
+  console.log("Kocha 1.0");
 
   while (true) {
     const input = prompt(">> ");

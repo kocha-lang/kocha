@@ -25,35 +25,29 @@ export default class Parser {
     return this.tokens[this.index - 1];
   }
 
+  private expect(type: TokenType, error: string): Token {
+    this.index++;
+    const prev = this.tokens[this.index - 1];
+    if (!prev || prev.type != type) {
+      console.error(
+        `Parser error:\n ${error}\n  -> ${prev} - Expected: ${type}`,
+      );
+      Deno.exit(1);
+    }
+    return prev;
+  }
+
   private parseStatement(): Statement {
     return this.parseExpression();
   }
 
-  // Orders Of Prescidence
+  // - Orders Of Prescidence -
   // AdditiveExpr
   // MultiplicitaveExpr
   // PrimaryExpr
 
   private parseExpression(): Expression {
     return this.parseAdditiveExpression();
-  }
-
-  private parseAdditiveExpression(): Expression {
-    let left = this.parsePrimaryExpression();
-
-    while (this.at().value == "+" || this.at().value == "-") {
-      const operator = this.next().value;
-      const right = this.parsePrimaryExpression();
-
-      left = {
-        kind: "BinaryExpression",
-        left,
-        right,
-        operator,
-      } as BinaryExpression;
-    }
-
-    return left;
   }
 
   private parsePrimaryExpression(): Expression {
@@ -70,10 +64,56 @@ export default class Parser {
           kind: "NumericLiteral",
           value: parseFloat(this.next().value),
         } as NumericLiteral;
+
+      case TokenType.OpenParen: {
+        this.next();
+        const value = this.parseExpression();
+        this.expect(TokenType.CloseParen, "Unexpected token inside skobki");
+        return value;
+      }
+
       default:
         console.error("Error occured in parsing a token ", this.at());
         Deno.exit(1);
     }
+  }
+
+  private parseAdditiveExpression(): Expression {
+    let left = this.parseMultiplicativeExpression();
+
+    while (this.at().value == "+" || this.at().value == "-") {
+      const operator = this.next().value;
+      const right = this.parseMultiplicativeExpression();
+
+      left = {
+        kind: "BinaryExpression",
+        left,
+        right,
+        operator,
+      } as BinaryExpression;
+    }
+
+    return left;
+  }
+
+  private parseMultiplicativeExpression(): Expression {
+    let left = this.parsePrimaryExpression();
+
+    while (
+      this.at().value == "*" || this.at().value == "/" || this.at().value == "%"
+    ) {
+      const operator = this.next().value;
+      const right = this.parsePrimaryExpression();
+
+      left = {
+        kind: "BinaryExpression",
+        left,
+        right,
+        operator,
+      } as BinaryExpression;
+    }
+
+    return left;
   }
 
   public createAST(srcCode: string): Program {
