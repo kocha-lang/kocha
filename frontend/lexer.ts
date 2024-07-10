@@ -1,5 +1,6 @@
 export enum TokenType {
   // literal types
+  Null,
   Number,
   Identifier,
 
@@ -53,11 +54,11 @@ export function tokenize(srcCode: string): Token[] {
 
   const saveAlpha = () => {
     const reserved = KEYWORDS[tempWord];
-    if (reserved) {
+    if (typeof reserved == "number") {
       tokens.push(token(tempWord, reserved));
-    } else {
-      tokens.push(token(tempWord, TokenType.Identifier));
+      return;
     }
+    tokens.push(token(tempWord, TokenType.Identifier));
   };
 
   const finalHandle = (index: number) => {
