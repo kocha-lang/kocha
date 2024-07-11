@@ -5,6 +5,7 @@ import {
   NumericLiteral,
   Program,
   Statement,
+  VariableDeclaration,
 } from "./ast.ts";
 import { Token, tokenize, TokenType } from "./lexer.ts";
 
@@ -16,6 +17,7 @@ export default class Parser {
     return this.tokens[this.index].type != TokenType.EOF;
   }
 
+  /** Returns the current token */
   private at(): Token {
     return this.tokens[this.index] as Token;
   }
@@ -38,7 +40,57 @@ export default class Parser {
   }
 
   private parseStatement(): Statement {
-    return this.parseExpression();
+    switch (this.at().type) {
+      case TokenType.Let:
+      case TokenType.Const:
+        return this.parseVarDeclaration();
+      default:
+        return this.parseExpression();
+    }
+  }
+
+  /**
+   *  Formats:
+   *  1. (Let | Const) Identifier Equal Expression Semicolon
+   *  ```
+   *      xullas a endi 4;
+   *      aniq a endi 4;
+   *  ```
+   *  2. Let Identifier Semicolon
+   *    ```
+   *        xullas a;
+   *    ```
+   */
+  private parseVarDeclaration(): Statement {
+    const isConst = this.next().type == TokenType.Const;
+    const identifier = this.expect(
+      TokenType.Identifier,
+      "PARSER: Expected identifier after let | const",
+    ).value;
+
+    if (this.at().type == TokenType.Semicolon) {
+      this.next();
+      if (isConst) {
+        throw "Const must contain a value fool!";
+      }
+
+      return {
+        kind: "VariableDeclaration",
+        identifier,
+        isConst,
+      } as VariableDeclaration;
+    }
+
+    this.expect(TokenType.Equals, "Expected equals token");
+    const declaration = {
+      kind: "VariableDeclaration",
+      identifier,
+      value: this.parseExpression(),
+      isConst,
+    } as VariableDeclaration;
+
+    this.expect(TokenType.Semicolon, "Expected semicolon on var declr");
+    return declaration;
   }
 
   // - Orders Of Prescidence -

@@ -8,10 +8,12 @@ export enum TokenType {
   OpenParen,
   CloseParen,
   BinaryOperator,
+  Semicolon,
   EOF, // tells the end of file
 
   // keywords
   Let,
+  Const,
 }
 
 export interface Token {
@@ -21,6 +23,7 @@ export interface Token {
 
 const KEYWORDS: Record<string, TokenType> = {
   "xullas": TokenType.Let,
+  "aniq": TokenType.Const,
   "endi": TokenType.Equals,
 };
 
@@ -90,6 +93,11 @@ export function tokenize(srcCode: string): Token[] {
     if (["+", "-", "*", "/", "%"].includes(src[i])) {
       finalHandle(i);
       tokens.push(token(src[i], TokenType.BinaryOperator));
+      continue;
+    }
+    if (src[i] == ";") {
+      finalHandle(i);
+      tokens.push(token(src[i], TokenType.Semicolon));
       continue;
     }
 
