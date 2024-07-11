@@ -1,6 +1,5 @@
 export enum TokenType {
   // literal types
-  Null,
   Number,
   Identifier,
 

@@ -2,7 +2,6 @@ import {
   BinaryExpression,
   Expression,
   Identifier,
-  NullLiteral,
   NumericLiteral,
   Program,
   Statement,
@@ -65,10 +64,6 @@ export default class Parser {
           kind: "NumericLiteral",
           value: parseFloat(this.next().value),
         } as NumericLiteral;
-
-      case TokenType.Null:
-        this.next();
-        return { kind: "NullLiteral", value: "null" } as NullLiteral;
 
       case TokenType.OpenParen: {
         this.next();
