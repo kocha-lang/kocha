@@ -1,5 +1,9 @@
 import { MK_NULL, NumberValue, RuntimeValue } from "../values.ts";
-import { BinaryExpression, Identifier } from "../../frontend/ast.ts";
+import {
+  AssignmentExpression,
+  BinaryExpression,
+  Identifier,
+} from "../../frontend/ast.ts";
 import Environment from "../environment.ts";
 import { interpret } from "../interpreter.ts";
 
@@ -57,4 +61,19 @@ export function evalIdentifier(
   env: Environment,
 ): RuntimeValue {
   return env.getVariable(ident.symbol);
+}
+
+export function evalAssignment(
+  node: AssignmentExpression,
+  env: Environment,
+): RuntimeValue {
+  // we only support identifier rn, maybe some support like a,b = b,a will be added in the future
+  // would be awesome to implement a var switch using XOR gate
+
+  if (node.owner.kind !== "Identifier") {
+    throw "Interpretor: Cannot assign to anything rather than an identifier";
+  }
+
+  const varname = (node.owner as Identifier).symbol;
+  return env.assignVariable(varname, interpret(node.value, env));
 }

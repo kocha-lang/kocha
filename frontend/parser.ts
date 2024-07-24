@@ -1,4 +1,5 @@
 import {
+  AssignmentExpression,
   BinaryExpression,
   Expression,
   Identifier,
@@ -99,7 +100,23 @@ export default class Parser {
   // PrimaryExpr
 
   private parseExpression(): Expression {
-    return this.parseAdditiveExpression();
+    return this.parseAssignmentExpression();
+  }
+
+  private parseAssignmentExpression(): Expression {
+    const left = this.parseAdditiveExpression();
+
+    if (this.at().type == TokenType.Equals) {
+      this.next();
+      const value = this.parseAssignmentExpression();
+      return {
+        value,
+        owner: left,
+        kind: "AssignmentExpression",
+      } as AssignmentExpression;
+    }
+
+    return left;
   }
 
   private parsePrimaryExpression(): Expression {
