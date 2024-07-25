@@ -2,4 +2,4 @@ xullas a endi 5;
 # comment
 xullas b endi 4; #inline comment
 
-a+b
+korsat(a);

@@ -1,7 +1,14 @@
-import { MK_NULL, NumberValue, ObjectValue, RuntimeValue } from "../values.ts";
+import {
+  MK_NULL,
+  NativeFnValue,
+  NumberValue,
+  ObjectValue,
+  RuntimeValue,
+} from "../values.ts";
 import {
   AssignmentExpression,
   BinaryExpression,
+  CallExpression,
   Identifier,
   ObjectLiteral,
 } from "../../frontend/ast.ts";
@@ -94,4 +101,19 @@ export function evalObjectExpression(
   }
 
   return object;
+}
+
+export function evalCallExpression(
+  call: CallExpression,
+  env: Environment,
+): RuntimeValue {
+  const args = call.args.map((arg) => interpret(arg, env));
+  const fn = interpret(call.caller, env);
+
+  if (fn.type !== "native-fn") {
+    throw "Cannot call value that is not a function!" + JSON.stringify(fn);
+  }
+
+  const result = (fn as NativeFnValue).call(args, env);
+  return result;
 }

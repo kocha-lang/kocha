@@ -2,6 +2,7 @@ import { MK_NUMBER, RuntimeValue } from "./values.ts";
 import {
   AssignmentExpression,
   BinaryExpression,
+  CallExpression,
   Identifier,
   NumericLiteral,
   ObjectLiteral,
@@ -13,6 +14,7 @@ import Environment from "./environment.ts";
 import {
   evalAssignment,
   evalBinaryExpression,
+  evalCallExpression,
   evalIdentifier,
   evalObjectExpression,
 } from "./eval/expressions.ts";
@@ -34,6 +36,8 @@ export function interpret(astNode: Statement, env: Environment): RuntimeValue {
       return evalAssignment(astNode as AssignmentExpression, env);
     case "ObjectLiteral":
       return evalObjectExpression(astNode as ObjectLiteral, env);
+    case "CallExpression":
+      return evalCallExpression(astNode as CallExpression, env);
     default:
       console.error(
         "Interpreter: AST type not handled yet type:",

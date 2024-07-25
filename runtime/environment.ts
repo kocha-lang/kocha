@@ -1,12 +1,17 @@
-import { RuntimeValue } from "./values.ts";
+import { MK_NATIVE_FN, RuntimeValue } from "./values.ts";
+import { korsat } from "./std/functions.ts";
 import { MK_BOOL, MK_NULL } from "./values.ts";
 
 export function createGlobalEnv(): Environment {
   const env = new Environment();
 
+  // std vars
   env.declareVariable("true", MK_BOOL(), true);
   env.declareVariable("false", MK_BOOL(false), true);
   env.declareVariable("pustoy", MK_NULL(), true);
+
+  // std funcs
+  env.declareVariable("korsat", MK_NATIVE_FN(korsat), true);
 
   return env;
 }
