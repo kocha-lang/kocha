@@ -93,6 +93,5 @@ export function evalObjectExpression(
     object.props.set(key, runtimeVal);
   }
 
-  console.log(object.props);
   return object;
 }

@@ -30,5 +30,5 @@ async function runExample() {
   console.log(result.value);
 }
 
-runExample();
-// repl();
+await runExample();
+repl();

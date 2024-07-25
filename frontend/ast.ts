@@ -6,6 +6,7 @@ export type NodeType =
   // Expressions
   | "BinaryExpression"
   | "AssignmentExpression"
+  | "MemberExpression"
   | "CallExpression"
   | "UnaryExpression"
   // Literals
@@ -43,6 +44,19 @@ export interface AssignmentExpression extends Expression {
   kind: "AssignmentExpression";
   owner: Expression;
   value: Expression;
+}
+
+export interface MemberExpression extends Expression {
+  kind: "MemberExpression";
+  object: Expression;
+  prop: Expression;
+  computed: boolean;
+}
+
+export interface CallExpression extends Expression {
+  kind: "CallExpression";
+  args: Expression[];
+  caller: Expression;
 }
 
 export interface Identifier extends Expression {

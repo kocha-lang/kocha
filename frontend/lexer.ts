@@ -10,9 +10,12 @@ export enum TokenType {
   CloseParen, // )
   OpenBrace, // {
   CloseBrace, // }
+  OpenBracket, // [
+  CloseBracket, // ]
   Colon,
   Semicolon,
   Comma,
+  Dot,
   EOF, // tells the end of file
 
   // keywords
@@ -82,8 +85,20 @@ export function tokenize(srcCode: string): Token[] {
     tempWord = "";
   };
 
+  const findTheEnd = (i: number): number => {
+    while (src[i] != "\n") {
+      i++;
+    }
+    return i;
+  };
+
   // =========== Loop ============
   for (let i = 0; i < src.length; i++) {
+    // check if comment
+    if (src[i] == "#") {
+      i = findTheEnd(i);
+      continue;
+    }
     if (src[i] == "(") {
       finalHandle(i);
       tokens.push(token(src[i], TokenType.OpenParen));
@@ -102,6 +117,16 @@ export function tokenize(srcCode: string): Token[] {
     if (src[i] == "}") {
       finalHandle(i);
       tokens.push(token(src[i], TokenType.CloseBrace));
+      continue;
+    }
+    if (src[i] == "[") {
+      finalHandle(i);
+      tokens.push(token(src[i], TokenType.OpenBracket));
+      continue;
+    }
+    if (src[i] == "]") {
+      finalHandle(i);
+      tokens.push(token(src[i], TokenType.CloseBracket));
       continue;
     }
     if (["+", "-", "*", "/", "%"].includes(src[i])) {
@@ -124,6 +149,12 @@ export function tokenize(srcCode: string): Token[] {
     if (src[i] == ",") {
       finalHandle(i);
       tokens.push(token(src[i], TokenType.Comma));
+      continue;
+    }
+
+    if (src[i] == ".") {
+      finalHandle(i);
+      tokens.push(token(src[i], TokenType.Dot));
       continue;
     }
 

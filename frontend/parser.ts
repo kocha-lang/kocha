@@ -1,8 +1,10 @@
 import {
   AssignmentExpression,
   BinaryExpression,
+  CallExpression,
   Expression,
   Identifier,
+  MemberExpression,
   NumericLiteral,
   ObjectLiteral,
   Program,
@@ -184,13 +186,13 @@ export default class Parser {
   }
 
   private parseMultiplicativeExpression(): Expression {
-    let left = this.parsePrimaryExpression();
+    let left = this.parseCallMemeberExpression();
 
     while (
       this.at().value == "*" || this.at().value == "/" || this.at().value == "%"
     ) {
       const operator = this.next().value;
-      const right = this.parsePrimaryExpression();
+      const right = this.parseCallMemeberExpression();
 
       left = {
         kind: "BinaryExpression",
@@ -201,6 +203,90 @@ export default class Parser {
     }
 
     return left;
+  }
+
+  private parseCallMemeberExpression(): Expression {
+    const member = this.parseMemberExpression();
+
+    if (this.at().type == TokenType.OpenParen) {
+      return this.parseCallExpression(member);
+    }
+
+    return member;
+  }
+
+  private parseCallExpression(caller: Expression): Expression {
+    let callExpr: Expression = {
+      kind: "CallExpression",
+      caller,
+      args: this.parseArgs(),
+    } as CallExpression;
+
+    // support for x()() syntax - calling a function that was returned
+    if (this.at().type == TokenType.OpenParen) {
+      callExpr = this.parseCallExpression(callExpr);
+    }
+
+    return callExpr;
+  }
+
+  private parseArgs(): Expression[] {
+    this.expect(TokenType.OpenParen, "Exprected open paren");
+    const args = this.at().type == TokenType.CloseParen
+      ? []
+      : this.parseArgList();
+
+    this.expect(TokenType.CloseParen, "Exprected close paren");
+    return args;
+  }
+
+  private parseArgList(): Expression[] {
+    const args = [this.parseAssignmentExpression()];
+
+    while (this.at().type == TokenType.Comma && this.next()) {
+      args.push(this.parseAssignmentExpression());
+    }
+
+    return args;
+  }
+
+  private parseMemberExpression(): Expression {
+    let object = this.parsePrimaryExpression();
+
+    while (
+      this.at().type == TokenType.Dot || this.at().type == TokenType.OpenBracket
+    ) {
+      const operator = this.next();
+      let prop: Expression;
+      let computed: boolean;
+
+      // syntax obj.expression
+      if (operator.type == TokenType.Dot) {
+        computed = false;
+        prop = this.parsePrimaryExpression();
+
+        if (prop.kind != "Identifier") {
+          throw "Nuxtadan keyin normalniy klichka berin";
+        }
+      } // syntax: obj[computedValue]
+      else {
+        computed = true;
+        prop = this.parseExpression();
+        this.expect(
+          TokenType.CloseBracket,
+          "Missing close bracker after computed value",
+        );
+      }
+
+      object = {
+        kind: "MemberExpression",
+        object,
+        prop,
+        computed,
+      } as MemberExpression;
+    }
+
+    return object;
   }
 
   private parsePrimaryExpression(): Expression {

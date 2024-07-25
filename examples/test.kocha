@@ -1,10 +1,5 @@
-xullas sergeli endi 2324;
-jovob poderjka endi 100;
+xullas a endi 5;
+# comment
+xullas b endi 4; #inline comment
 
-xullas tanka endi {
-  abyom: sergeli + poderjka,
-  kuch: poderjka * 2,
-  kochala: {
-    soni: 2
-  }
-};
+a+b
