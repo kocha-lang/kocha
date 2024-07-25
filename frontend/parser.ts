@@ -3,12 +3,14 @@ import {
   BinaryExpression,
   CallExpression,
   Expression,
+  FunctionDeclaration,
   Identifier,
   MemberExpression,
   NumericLiteral,
   ObjectLiteral,
   Program,
   Property,
+  ReturnStatement,
   Statement,
   VariableDeclaration,
 } from "./ast.ts";
@@ -49,6 +51,10 @@ export default class Parser {
       case TokenType.Let:
       case TokenType.Const:
         return this.parseVarDeclaration();
+      case TokenType.Fn:
+        return this.parseFnDeclaration();
+      case TokenType.Return:
+        return this.parseReturnStatement();
       default:
         return this.parseExpression();
     }
@@ -96,6 +102,52 @@ export default class Parser {
 
     this.expect(TokenType.Semicolon, "Expected semicolon on var declr");
     return declaration;
+  }
+
+  private parseFnDeclaration(): Statement {
+    this.next(); // skipping fn keyword
+    const name = this.expect(
+      TokenType.Identifier,
+      "Expceted function name following fn keyword",
+    ).value; // looking for func name
+
+    // parsing params | fn foo (a,b)
+    const args = this.parseArgs();
+    const params: string[] = [];
+
+    for (const arg of args) {
+      if (arg.kind !== "Identifier") {
+        throw "Expected identifier on func declaration";
+      }
+      params.push((arg as Identifier).symbol);
+    }
+
+    // parsing body | fn foo (a,b) {}
+    this.expect(TokenType.OpenBrace, "Expected '{' after function params");
+    const body: Statement[] = [];
+
+    while (
+      this.at().type != TokenType.EOF && this.at().type != TokenType.CloseBrace
+    ) {
+      body.push(this.parseStatement());
+    }
+
+    this.expect(TokenType.CloseBrace, "Expected '}' after function body");
+    const fn = {
+      kind: "FunctionDeclaration",
+      name,
+      body,
+      params,
+    } as FunctionDeclaration;
+
+    return fn;
+  }
+
+  private parseReturnStatement(): Statement {
+    this.next();
+    const value = this.parseExpression();
+    this.expect(TokenType.Semicolon, "Expected semicolon after return");
+    return { kind: "ReturnStatement", value } as ReturnStatement;
   }
 
   // - Orders Of Prescidence -

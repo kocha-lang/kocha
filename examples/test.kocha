@@ -1,5 +1,9 @@
 xullas a endi 5;
-# comment
-xullas b endi 4; #inline comment
+xullas b endi 4;
 
-korsat(a);
+fn multiply(x, y){
+  qaytar (a+b) / x * y;
+}
+
+
+korsat(multiply(2, 3));

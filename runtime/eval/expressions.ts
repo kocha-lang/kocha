@@ -1,4 +1,5 @@
 import {
+  FnValue,
   MK_NULL,
   NativeFnValue,
   NumberValue,
@@ -110,10 +111,35 @@ export function evalCallExpression(
   const args = call.args.map((arg) => interpret(arg, env));
   const fn = interpret(call.caller, env);
 
-  if (fn.type !== "native-fn") {
-    throw "Cannot call value that is not a function!" + JSON.stringify(fn);
+  if (fn.type == "native-fn") {
+    const result = (fn as NativeFnValue).call(args, env);
+    return result;
   }
 
-  const result = (fn as NativeFnValue).call(args, env);
-  return result;
+  if (fn.type == "function") {
+    const func = fn as FnValue;
+    const scope = new Environment(func.declarationEnv);
+
+    if (args.length == func.params.length) {
+      // declare variables to the function's scope
+      for (let i = 0; i < func.params.length; i++) {
+        scope.declareVariable(func.params[i], args[i], false);
+      }
+
+      let result: RuntimeValue = MK_NULL();
+      // execute line by line
+      for (const statement of func.body) {
+        if (statement.kind == "ReturnStatement") {
+          result = interpret(statement, scope);
+          return result;
+        }
+        result = interpret(statement, scope);
+      }
+      return result;
+    }
+    throw `The number of args must match calling the function\n
+           You gave ${args.length}\n
+           Should be: ${func.params.length}`;
+  }
+  throw `${JSON.stringify(fn)} is not a function. So we can't call it!`;
 }

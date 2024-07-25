@@ -21,6 +21,8 @@ export enum TokenType {
   // keywords
   Let,
   Const,
+  Fn,
+  Return,
 }
 
 export interface Token {
@@ -32,6 +34,8 @@ const KEYWORDS: Record<string, TokenType> = {
   "xullas": TokenType.Let,
   "jovob": TokenType.Const,
   "endi": TokenType.Equals,
+  "fn": TokenType.Fn,
+  "qaytar": TokenType.Return,
 };
 
 export function token(value: string, type: TokenType): Token {

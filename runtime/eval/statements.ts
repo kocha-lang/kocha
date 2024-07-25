@@ -1,5 +1,10 @@
-import { MK_NULL, RuntimeValue } from "../values.ts";
-import { Program, VariableDeclaration } from "../../frontend/ast.ts";
+import { FnValue, MK_NULL, RuntimeValue } from "../values.ts";
+import {
+  FunctionDeclaration,
+  Program,
+  ReturnStatement,
+  VariableDeclaration,
+} from "../../frontend/ast.ts";
 import Environment from "../environment.ts";
 import { interpret } from "../interpreter.ts";
 
@@ -25,4 +30,26 @@ export function evalVarDeclaration(
     value,
     declaration.isConst,
   );
+}
+
+export function evalFnDeclaration(
+  declaration: FunctionDeclaration,
+  env: Environment,
+): RuntimeValue {
+  const fn = {
+    type: "function",
+    name: declaration.name,
+    params: declaration.params,
+    declarationEnv: env,
+    body: declaration.body,
+  } as FnValue;
+
+  return env.declareVariable(declaration.name, fn, true);
+}
+
+export function evalReturnStatement(
+  statement: ReturnStatement,
+  env: Environment,
+): RuntimeValue {
+  return interpret(statement.value, env);
 }

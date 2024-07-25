@@ -3,10 +3,12 @@ import {
   AssignmentExpression,
   BinaryExpression,
   CallExpression,
+  FunctionDeclaration,
   Identifier,
   NumericLiteral,
   ObjectLiteral,
   Program,
+  ReturnStatement,
   Statement,
   VariableDeclaration,
 } from "../frontend/ast.ts";
@@ -18,7 +20,12 @@ import {
   evalIdentifier,
   evalObjectExpression,
 } from "./eval/expressions.ts";
-import { evalProgram, evalVarDeclaration } from "./eval/statements.ts";
+import {
+  evalFnDeclaration,
+  evalProgram,
+  evalReturnStatement,
+  evalVarDeclaration,
+} from "./eval/statements.ts";
 
 export function interpret(astNode: Statement, env: Environment): RuntimeValue {
   switch (astNode.kind) {
@@ -32,6 +39,10 @@ export function interpret(astNode: Statement, env: Environment): RuntimeValue {
       return evalProgram(astNode as Program, env);
     case "VariableDeclaration":
       return evalVarDeclaration(astNode as VariableDeclaration, env);
+    case "FunctionDeclaration":
+      return evalFnDeclaration(astNode as FunctionDeclaration, env);
+    case "ReturnStatement":
+      return evalReturnStatement(astNode as ReturnStatement, env);
     case "AssignmentExpression":
       return evalAssignment(astNode as AssignmentExpression, env);
     case "ObjectLiteral":
