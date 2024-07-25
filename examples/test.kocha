@@ -1,4 +1,10 @@
-xullas a endi 4;
-xullas b endi 5;
+xullas sergeli endi 2324;
+jovob poderjka endi 100;
 
-a * b
+xullas tanka endi {
+  abyom: sergeli + poderjka,
+  kuch: poderjka * 2,
+  kochala: {
+    soni: 2
+  }
+};

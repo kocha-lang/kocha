@@ -4,6 +4,7 @@ import {
   BinaryExpression,
   Identifier,
   NumericLiteral,
+  ObjectLiteral,
   Program,
   Statement,
   VariableDeclaration,
@@ -13,6 +14,7 @@ import {
   evalAssignment,
   evalBinaryExpression,
   evalIdentifier,
+  evalObjectExpression,
 } from "./eval/expressions.ts";
 import { evalProgram, evalVarDeclaration } from "./eval/statements.ts";
 
@@ -30,6 +32,8 @@ export function interpret(astNode: Statement, env: Environment): RuntimeValue {
       return evalVarDeclaration(astNode as VariableDeclaration, env);
     case "AssignmentExpression":
       return evalAssignment(astNode as AssignmentExpression, env);
+    case "ObjectLiteral":
+      return evalObjectExpression(astNode as ObjectLiteral, env);
     default:
       console.error(
         "Interpreter: AST type not handled yet type:",

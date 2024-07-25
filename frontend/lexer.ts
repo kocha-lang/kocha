@@ -4,11 +4,15 @@ export enum TokenType {
   Identifier,
 
   // grouping operators
-  Equals,
-  OpenParen,
-  CloseParen,
   BinaryOperator,
+  Equals,
+  OpenParen, // (
+  CloseParen, // )
+  OpenBrace, // {
+  CloseBrace, // }
+  Colon,
   Semicolon,
+  Comma,
   EOF, // tells the end of file
 
   // keywords
@@ -23,7 +27,7 @@ export interface Token {
 
 const KEYWORDS: Record<string, TokenType> = {
   "xullas": TokenType.Let,
-  "aniq": TokenType.Const,
+  "jovob": TokenType.Const,
   "endi": TokenType.Equals,
 };
 
@@ -40,7 +44,7 @@ function isInt(src: string) {
 }
 
 function isEscapeChar(src: string) {
-  return /^[ \n\t]$/.test(src);
+  return /^[ \n\t\r]$/.test(src);
 }
 
 export function tokenize(srcCode: string): Token[] {
@@ -90,6 +94,16 @@ export function tokenize(srcCode: string): Token[] {
       tokens.push(token(src[i], TokenType.CloseParen));
       continue;
     }
+    if (src[i] == "{") {
+      finalHandle(i);
+      tokens.push(token(src[i], TokenType.OpenBrace));
+      continue;
+    }
+    if (src[i] == "}") {
+      finalHandle(i);
+      tokens.push(token(src[i], TokenType.CloseBrace));
+      continue;
+    }
     if (["+", "-", "*", "/", "%"].includes(src[i])) {
       finalHandle(i);
       tokens.push(token(src[i], TokenType.BinaryOperator));
@@ -98,6 +112,18 @@ export function tokenize(srcCode: string): Token[] {
     if (src[i] == ";") {
       finalHandle(i);
       tokens.push(token(src[i], TokenType.Semicolon));
+      continue;
+    }
+
+    if (src[i] == ":") {
+      finalHandle(i);
+      tokens.push(token(src[i], TokenType.Colon));
+      continue;
+    }
+
+    if (src[i] == ",") {
+      finalHandle(i);
+      tokens.push(token(src[i], TokenType.Comma));
       continue;
     }
 

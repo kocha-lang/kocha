@@ -1,10 +1,10 @@
 import Parser from "./frontend/parser.ts";
-import Environment from "./runtime/environment.ts";
+import { createGlobalEnv } from "./runtime/environment.ts";
 import { interpret } from "./runtime/interpreter.ts";
 
 function repl() {
   const parser = new Parser();
-  const env = new Environment();
+  const env = createGlobalEnv();
 
   console.log("Kocha 1.0");
   while (true) {
@@ -22,7 +22,7 @@ function repl() {
 
 async function runExample() {
   const parser = new Parser();
-  const env = new Environment();
+  const env = createGlobalEnv();
 
   const code = await Deno.readTextFile("./examples/test.kocha");
   const program = parser.createAST(code);
@@ -30,5 +30,5 @@ async function runExample() {
   console.log(result.value);
 }
 
-repl();
 runExample();
+// repl();

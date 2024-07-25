@@ -4,7 +4,9 @@ import {
   Expression,
   Identifier,
   NumericLiteral,
+  ObjectLiteral,
   Program,
+  Property,
   Statement,
   VariableDeclaration,
 } from "./ast.ts";
@@ -104,7 +106,7 @@ export default class Parser {
   }
 
   private parseAssignmentExpression(): Expression {
-    const left = this.parseAdditiveExpression();
+    const left = this.parseObjectExpression();
 
     if (this.at().type == TokenType.Equals) {
       this.next();
@@ -119,32 +121,48 @@ export default class Parser {
     return left;
   }
 
-  private parsePrimaryExpression(): Expression {
-    const tk = this.at().type;
+  private parseObjectExpression(): Expression {
+    if (this.at().type !== TokenType.OpenBrace) {
+      return this.parseAdditiveExpression();
+    }
 
-    switch (tk) {
-      case TokenType.Identifier:
-        return {
-          kind: "Identifier",
-          symbol: this.next().value,
-        } as Identifier;
-      case TokenType.Number:
-        return {
-          kind: "NumericLiteral",
-          value: parseFloat(this.next().value),
-        } as NumericLiteral;
+    this.next();
+    const props = new Array<Property>();
 
-      case TokenType.OpenParen: {
+    while (this.notEOF() && this.at().type != TokenType.CloseBrace) {
+      const key = this.expect(
+        TokenType.Identifier,
+        "Object literal key expected!",
+      ).value;
+
+      // shorthand for an empty value key { key, }
+      if (this.at().type == TokenType.Comma) {
         this.next();
-        const value = this.parseExpression();
-        this.expect(TokenType.CloseParen, "Unexpected token inside skobki");
-        return value;
+        props.push({ kind: "Property", key } as Property);
+        continue;
       }
 
-      default:
-        console.error("Error occured in parsing a token ", this.at());
-        Deno.exit(1);
+      // shorthand for { key }
+      if (this.at().type == TokenType.CloseBrace) {
+        props.push({ kind: "Property", key } as Property);
+        continue;
+      }
+
+      // { key: value }
+      this.expect(TokenType.Colon, "Missing colon after key");
+      const value = this.parseExpression();
+      props.push({ kind: "Property", key, value });
+
+      if (this.at().type != TokenType.CloseBrace) {
+        this.expect(
+          TokenType.Comma,
+          "Comma or closing brace expected on Object",
+        );
+      }
     }
+
+    this.expect(TokenType.CloseBrace, "Object closing brace missing!");
+    return { kind: "ObjectLiteral", props } as ObjectLiteral;
   }
 
   private parseAdditiveExpression(): Expression {
@@ -183,6 +201,34 @@ export default class Parser {
     }
 
     return left;
+  }
+
+  private parsePrimaryExpression(): Expression {
+    const tk = this.at().type;
+
+    switch (tk) {
+      case TokenType.Identifier:
+        return {
+          kind: "Identifier",
+          symbol: this.next().value,
+        } as Identifier;
+      case TokenType.Number:
+        return {
+          kind: "NumericLiteral",
+          value: parseFloat(this.next().value),
+        } as NumericLiteral;
+
+      case TokenType.OpenParen: {
+        this.next();
+        const value = this.parseExpression();
+        this.expect(TokenType.CloseParen, "Unexpected token inside skobki");
+        return value;
+      }
+
+      default:
+        console.error("Error occured in parsing a token ", this.at());
+        Deno.exit(1);
+    }
   }
 
   public createAST(srcCode: string): Program {

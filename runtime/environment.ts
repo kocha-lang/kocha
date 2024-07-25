@@ -1,10 +1,14 @@
 import { RuntimeValue } from "./values.ts";
 import { MK_BOOL, MK_NULL } from "./values.ts";
 
-function setupScope(env: Environment) {
+export function createGlobalEnv(): Environment {
+  const env = new Environment();
+
   env.declareVariable("true", MK_BOOL(), true);
   env.declareVariable("false", MK_BOOL(false), true);
   env.declareVariable("pustoy", MK_NULL(), true);
+
+  return env;
 }
 
 export default class Environment {
@@ -13,14 +17,9 @@ export default class Environment {
   private constants: Set<string>;
 
   constructor(parentEnv?: Environment) {
-    const global = parentEnv ? true : false;
     this.parent = parentEnv;
     this.variables = new Map();
     this.constants = new Set();
-
-    if (global) {
-      setupScope(this);
-    }
   }
 
   public declareVariable(name: string, value: RuntimeValue, isConst: boolean) {

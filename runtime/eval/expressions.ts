@@ -1,8 +1,9 @@
-import { MK_NULL, NumberValue, RuntimeValue } from "../values.ts";
+import { MK_NULL, NumberValue, ObjectValue, RuntimeValue } from "../values.ts";
 import {
   AssignmentExpression,
   BinaryExpression,
   Identifier,
+  ObjectLiteral,
 } from "../../frontend/ast.ts";
 import Environment from "../environment.ts";
 import { interpret } from "../interpreter.ts";
@@ -76,4 +77,22 @@ export function evalAssignment(
 
   const varname = (node.owner as Identifier).symbol;
   return env.assignVariable(varname, interpret(node.value, env));
+}
+
+export function evalObjectExpression(
+  obj: ObjectLiteral,
+  env: Environment,
+): RuntimeValue {
+  const object = { type: "object", props: new Map() } as ObjectValue;
+
+  for (const { key, value } of obj.props) {
+    const runtimeVal = (value == undefined)
+      ? env.getVariable(key)
+      : interpret(value, env);
+
+    object.props.set(key, runtimeVal);
+  }
+
+  console.log(object.props);
+  return object;
 }
