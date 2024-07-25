@@ -12,6 +12,7 @@ import {
   Property,
   ReturnStatement,
   Statement,
+  StringLiteral,
   VariableDeclaration,
 } from "./ast.ts";
 import { Token, tokenize, TokenType } from "./lexer.ts";
@@ -360,6 +361,11 @@ export default class Parser {
           kind: "NumericLiteral",
           value: parseFloat(this.next().value),
         } as NumericLiteral;
+      case TokenType.String:
+        return {
+          kind: "StringLiteral",
+          value: this.next().value,
+        } as StringLiteral;
 
       case TokenType.OpenParen: {
         this.next();

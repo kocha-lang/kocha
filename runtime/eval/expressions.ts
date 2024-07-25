@@ -5,6 +5,7 @@ import {
   NumberValue,
   ObjectValue,
   RuntimeValue,
+  StringValue,
 } from "../values.ts";
 import {
   AssignmentExpression,
@@ -149,9 +150,12 @@ export function evalMemberExpression(
   expr: MemberExpression,
   env: Environment,
 ): RuntimeValue {
-  const obj = interpret(expr.object, env) as NumberValue | ObjectValue;
+  const obj = interpret(expr.object, env) as
+    | NumberValue
+    | ObjectValue
+    | StringValue;
 
-  if (obj.type == "number") {
+  if (obj.type == "number" || obj.type == "string") {
     return obj;
   }
 
@@ -170,9 +174,11 @@ export function evalMemberExpression(
   } as ObjectValue;
 
   if (obj.props.size == 1) {
+    const value = result.props.values().next().value.value;
+
     return {
       type: "number",
-      value: result.props.values().next().value.value,
+      value: value,
     } as RuntimeValue;
   }
 

@@ -2,6 +2,7 @@ export enum TokenType {
   // literal types
   Number,
   Identifier,
+  String,
 
   // grouping operators
   BinaryOperator,
@@ -90,9 +91,21 @@ export function tokenize(srcCode: string): Token[] {
   };
 
   const findTheEnd = (i: number): number => {
-    while (src[i] != "\n") {
+    while (src[i] != "\n" && src[i] != undefined) {
       i++;
     }
+    return i;
+  };
+
+  const getString = (i: number): number => {
+    let str: string = "";
+    i++; // advance
+    while (src[i] != '"') {
+      str += src[i];
+      i++;
+    }
+
+    tokens.push(token(str, TokenType.String));
     return i;
   };
 
@@ -101,6 +114,10 @@ export function tokenize(srcCode: string): Token[] {
     // check if comment
     if (src[i] == "#") {
       i = findTheEnd(i);
+      continue;
+    }
+    if (src[i] == '"') {
+      i = getString(i);
       continue;
     }
     if (src[i] == "(") {

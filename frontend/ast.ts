@@ -14,7 +14,8 @@ export type NodeType =
   | "Property"
   | "ObjectLiteral"
   | "NumericLiteral"
-  | "Identifier";
+  | "Identifier"
+  | "StringLiteral";
 
 export interface Statement {
   kind: NodeType;
@@ -80,6 +81,11 @@ export interface Identifier extends Expression {
 export interface NumericLiteral extends Expression {
   kind: "NumericLiteral";
   value: number;
+}
+
+export interface StringLiteral extends Expression {
+  kind: "StringLiteral";
+  value: string;
 }
 
 export interface Property extends Expression {

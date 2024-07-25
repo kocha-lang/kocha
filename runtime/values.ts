@@ -3,6 +3,7 @@ import Environment from "./environment.ts";
 
 export type ValueType =
   | "null"
+  | "string"
   | "number"
   | "boolean"
   | "object"
@@ -11,7 +12,7 @@ export type ValueType =
 
 export interface RuntimeValue {
   type: ValueType;
-  value: null | number | boolean; // temp line
+  value: null | number | boolean | string; // temp line
 }
 
 export interface NullValue extends RuntimeValue {
@@ -22,6 +23,11 @@ export interface NullValue extends RuntimeValue {
 export interface NumberValue extends RuntimeValue {
   type: "number";
   value: number;
+}
+
+export interface StringValue extends RuntimeValue {
+  type: "string";
+  value: string;
 }
 
 export interface BoolValue extends RuntimeValue {
@@ -39,6 +45,10 @@ export function MK_NULL() {
 
 export function MK_BOOL(value = true) {
   return { type: "boolean", value: value } as BoolValue;
+}
+
+export function MK_STR(value: string) {
+  return { type: "string", value } as StringValue;
 }
 
 export interface ObjectValue extends RuntimeValue {

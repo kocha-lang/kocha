@@ -1,4 +1,4 @@
-import { MK_NUMBER, RuntimeValue } from "./values.ts";
+import { MK_NUMBER, MK_STR, RuntimeValue } from "./values.ts";
 import {
   AssignmentExpression,
   BinaryExpression,
@@ -11,6 +11,7 @@ import {
   Program,
   ReturnStatement,
   Statement,
+  StringLiteral,
   VariableDeclaration,
 } from "../frontend/ast.ts";
 import Environment from "./environment.ts";
@@ -33,6 +34,8 @@ export function interpret(astNode: Statement, env: Environment): RuntimeValue {
   switch (astNode.kind) {
     case "NumericLiteral":
       return MK_NUMBER((astNode as NumericLiteral).value);
+    case "StringLiteral":
+      return MK_STR((astNode as StringLiteral).value);
     case "Identifier":
       return evalIdentifier(astNode as Identifier, env);
     case "BinaryExpression":

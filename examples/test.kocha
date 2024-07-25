@@ -1,11 +1,7 @@
+
 xullas a = {
-  x: 4,
-  y: 5,
-  extra: {
-    c: {
-      d: 4,
-    },
-  },
+  x: "Hello world!",
+  y: 23,
 };
 
-korsat(a.extra.c.d);
+korsat(a.y);
