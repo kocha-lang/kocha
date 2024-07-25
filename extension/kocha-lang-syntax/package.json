@@ -1,0 +1,25 @@
+{
+  "name": "kocha-lang-syntax",
+  "displayName": "Kocha Lang Highlight",
+  "description": "Syntax hightlight for a kocha programming language written for uzbek okalar",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.91.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "contributes": {
+    "languages": [{
+      "id": "kocha",
+      "aliases": ["Kocha Tili", "kocha"],
+      "extensions": ["kocha"],
+      "configuration": "./language-configuration.json"
+    }],
+    "grammars": [{
+      "language": "kocha",
+      "scopeName": "source.kocha",
+      "path": "./syntaxes/kocha.tmLanguage.json"
+    }]
+  }
+}

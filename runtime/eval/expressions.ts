@@ -5,7 +5,6 @@ import {
   NumberValue,
   ObjectValue,
   RuntimeValue,
-  StringValue,
 } from "../values.ts";
 import {
   AssignmentExpression,
@@ -146,41 +145,38 @@ export function evalCallExpression(
   throw `${JSON.stringify(fn)} is not a function. So we can't call it!`;
 }
 
+function makeKeysToCall(expr: MemberExpression, env: Environment): string[] {
+  if (expr.object.kind == "MemberExpression") {
+    const last = makeKeysToCall(expr.object as MemberExpression, env);
+    const prop = expr.prop as Identifier;
+    last.push(prop.symbol);
+    return last;
+  }
+
+  if (expr.object.kind == "Identifier") {
+    const ident = expr.object as Identifier;
+    const prop = expr.prop as Identifier;
+
+    return [ident.symbol, prop.symbol];
+  }
+
+  throw `Other kinds for objects are not supported yet\n Given: ${expr.object}`;
+}
+
 export function evalMemberExpression(
   expr: MemberExpression,
   env: Environment,
 ): RuntimeValue {
-  const obj = interpret(expr.object, env) as
-    | NumberValue
-    | ObjectValue
-    | StringValue;
+  // it just finds an array of keys in the order where first element is a declared variable
+  // and others are top -> bottom keys
+  // for struct like a.x.y we will have an array of strings [a,x,y]
+  const keys = makeKeysToCall(expr, env);
+  let variable = env.getVariable(keys[0]) as ObjectValue;
 
-  if (obj.type == "number" || obj.type == "string") {
-    return obj;
+  // emulate recursion with for loop
+  for (let i = 1; i < keys.length; i++) {
+    variable = variable.props.get(keys[i]) as ObjectValue;
   }
 
-  let props;
-  const givenProps = obj.props.get(
-    (expr.prop as Identifier).symbol,
-  ) as ObjectValue;
-
-  if (givenProps) {
-    props = givenProps.props;
-  }
-
-  const result = {
-    type: "object",
-    props: props,
-  } as ObjectValue;
-
-  if (obj.props.size == 1) {
-    const value = result.props.values().next().value.value;
-
-    return {
-      type: "number",
-      value: value,
-    } as RuntimeValue;
-  }
-
-  return result;
+  return variable;
 }
