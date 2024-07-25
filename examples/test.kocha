@@ -1,9 +1,11 @@
-xullas a endi 5;
-xullas b endi 4;
+xullas a = {
+  x: 4,
+  y: 5,
+  extra: {
+    c: {
+      d: 4,
+    },
+  },
+};
 
-fn multiply(x, y){
-  qaytar (a+b) / x * y;
-}
-
-
-korsat(multiply(2, 3));
+korsat(a.extra.c.d);

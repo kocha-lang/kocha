@@ -5,6 +5,7 @@ import {
   CallExpression,
   FunctionDeclaration,
   Identifier,
+  MemberExpression,
   NumericLiteral,
   ObjectLiteral,
   Program,
@@ -18,6 +19,7 @@ import {
   evalBinaryExpression,
   evalCallExpression,
   evalIdentifier,
+  evalMemberExpression,
   evalObjectExpression,
 } from "./eval/expressions.ts";
 import {
@@ -49,6 +51,8 @@ export function interpret(astNode: Statement, env: Environment): RuntimeValue {
       return evalObjectExpression(astNode as ObjectLiteral, env);
     case "CallExpression":
       return evalCallExpression(astNode as CallExpression, env);
+    case "MemberExpression":
+      return evalMemberExpression(astNode as MemberExpression, env);
     default:
       console.error(
         "Interpreter: AST type not handled yet type:",

@@ -11,6 +11,7 @@ import {
   BinaryExpression,
   CallExpression,
   Identifier,
+  MemberExpression,
   ObjectLiteral,
 } from "../../frontend/ast.ts";
 import Environment from "../environment.ts";
@@ -142,4 +143,38 @@ export function evalCallExpression(
            Should be: ${func.params.length}`;
   }
   throw `${JSON.stringify(fn)} is not a function. So we can't call it!`;
+}
+
+export function evalMemberExpression(
+  expr: MemberExpression,
+  env: Environment,
+): RuntimeValue {
+  const obj = interpret(expr.object, env) as NumberValue | ObjectValue;
+
+  if (obj.type == "number") {
+    return obj;
+  }
+
+  let props;
+  const givenProps = obj.props.get(
+    (expr.prop as Identifier).symbol,
+  ) as ObjectValue;
+
+  if (givenProps) {
+    props = givenProps.props;
+  }
+
+  const result = {
+    type: "object",
+    props: props,
+  } as ObjectValue;
+
+  if (obj.props.size == 1) {
+    return {
+      type: "number",
+      value: result.props.values().next().value.value,
+    } as RuntimeValue;
+  }
+
+  return result;
 }
