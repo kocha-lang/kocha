@@ -127,6 +127,12 @@ export function tokenize(srcCode: string): Token[] {
       continue;
     }
 
+    if (src[i] == "=") {
+      finalHandle(i);
+      tokens.push(token(src[i], TokenType.Equals));
+      continue;
+    }
+
     // if int or last
     if (isInt(src[i])) {
       tempWord += src[i];
