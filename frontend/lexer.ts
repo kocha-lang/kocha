@@ -41,9 +41,9 @@ const KEYWORDS: Record<string, TokenType> = {
   "fn": TokenType.Fn,
   "qaytar": TokenType.Return,
   // conditions
-  "if": TokenType.If,
-  "elif": TokenType.ElseIf,
-  "else": TokenType.Else,
+  "agar": TokenType.If,
+  "oxshamasa": TokenType.ElseIf,
+  "oxiri": TokenType.Else,
   "va": TokenType.BinaryOperator,
   "yoki": TokenType.BinaryOperator,
 };

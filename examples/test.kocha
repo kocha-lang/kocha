@@ -1,9 +1,12 @@
+xullas a endi 4;
 
-if(a > 5){
-  korsat("salom");
+agar(a%2==0 va a%3==0){
+  korsat(a);
 }
-elif (b>4){
-  korsat("jey");
+
+oxshamasa(a==4){
+  korsat("tor chiqdi!");
 }
-else{
+oxiri{
+  korsat("chiqmadi!");
 }

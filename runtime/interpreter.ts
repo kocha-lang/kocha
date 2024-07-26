@@ -3,8 +3,11 @@ import {
   AssignmentExpression,
   BinaryExpression,
   CallExpression,
+  ElifStatement,
+  ElseStatement,
   FunctionDeclaration,
   Identifier,
+  IfStatement,
   MemberExpression,
   NumericLiteral,
   ObjectLiteral,
@@ -24,7 +27,10 @@ import {
   evalObjectExpression,
 } from "./eval/expressions.ts";
 import {
+  evalElifStatement,
+  evalElseStatement,
   evalFnDeclaration,
+  evalIfStatement,
   evalProgram,
   evalReturnStatement,
   evalVarDeclaration,
@@ -56,6 +62,12 @@ export function interpret(astNode: Statement, env: Environment): RuntimeValue {
       return evalCallExpression(astNode as CallExpression, env);
     case "MemberExpression":
       return evalMemberExpression(astNode as MemberExpression, env);
+    case "IfStatement":
+      return evalIfStatement(astNode as IfStatement, env);
+    case "ElifStatement":
+      return evalElifStatement(astNode as ElifStatement, env);
+    case "ElseStatement":
+      return evalElseStatement(astNode as ElseStatement, env);
     default:
       console.error(
         "Interpreter: AST type not handled yet type:",

@@ -16,6 +16,8 @@ import {
 } from "../../frontend/ast.ts";
 import Environment from "../environment.ts";
 import { interpret } from "../interpreter.ts";
+import { StringValue } from "../values.ts";
+import { BoolValue } from "../values.ts";
 
 function evalNumericBinaryExpression(
   left: NumberValue,
@@ -48,6 +50,55 @@ function evalNumericBinaryExpression(
   return { type: "number", value: result };
 }
 
+function evalRelationalBinaryExpr(
+  left: NumberValue | StringValue | BoolValue,
+  right: NumberValue | StringValue | BoolValue,
+  operator: string,
+): RuntimeValue {
+  let result: boolean;
+
+  switch (operator) {
+    case ">":
+      result = left.value > right.value;
+      break;
+    case "<":
+      result = left.value < right.value;
+      break;
+    case "==":
+      result = left.value == right.value;
+      break;
+    case "!=":
+      result = left.value != right.value;
+      break;
+    case ">=":
+      result = left.value >= right.value;
+      break;
+    default:
+      result = left.value <= right.value;
+      break;
+  }
+
+  return { type: "boolean", value: result } as BoolValue;
+}
+
+function evalLogicalBinaryExpr(
+  left: BoolValue,
+  right: BoolValue,
+  operator: string,
+): BoolValue {
+  let result: boolean;
+
+  switch (operator) {
+    case "va":
+      result = left.value && right.value;
+      break;
+    default:
+      result = left.value || right.value;
+  }
+
+  return { type: "boolean", value: result } as BoolValue;
+}
+
 export function evalBinaryExpression(
   binop: BinaryExpression,
   env: Environment,
@@ -55,7 +106,50 @@ export function evalBinaryExpression(
   const left = interpret(binop.left, env);
   const right = interpret(binop.right, env);
 
-  if (left.type == "number" && right.type == "number") {
+  const bothNumbers = () => {
+    return left.type == "number" && right.type == "number";
+  };
+
+  const bothStrings = () => {
+    return left.type == "string" && right.type == "string";
+  };
+
+  const bothBools = () => {
+    return left.type == "boolean" && right.type == "boolean";
+  };
+
+  // handling relational operators
+  if ([">=", "<=", ">", "<", "==", "!="].includes(binop.operator)) {
+    if (bothNumbers()) {
+      return evalRelationalBinaryExpr(
+        left as NumberValue,
+        right as NumberValue,
+        binop.operator,
+      );
+    }
+    if (bothStrings()) {
+      return evalRelationalBinaryExpr(
+        left as StringValue,
+        right as StringValue,
+        binop.operator,
+      );
+    }
+    throw "Bir biriga tog'ri keladigan ishni qilin. Son bilan son, gap bilan gap solishtirin faqat";
+  }
+
+  if (binop.operator == "va" || binop.operator == "yoki") {
+    if (bothBools()) {
+      return evalLogicalBinaryExpr(
+        left as BoolValue,
+        right as BoolValue,
+        binop.operator,
+      );
+    }
+    throw "va/yoki faqat boolni orasida bo'lishi mumkin aka";
+  }
+
+  // arithmetic operators
+  if (bothNumbers()) {
     return evalNumericBinaryExpression(
       left as NumberValue,
       right as NumberValue,

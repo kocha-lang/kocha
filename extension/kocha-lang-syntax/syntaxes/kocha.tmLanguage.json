@@ -23,7 +23,7 @@
       "patterns": [
         {
           "name": "keyword.control.kocha",
-          "match": "\\b(if|while|for|return|xullas|endi|fn)\\b"
+          "match": "\\b(agar|oxshamasa|oxiri|while|for|qaytar|xullas|endi|fn)\\b"
         }
       ]
     },
