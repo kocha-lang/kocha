@@ -2,9 +2,12 @@ import {
   AssignmentExpression,
   BinaryExpression,
   CallExpression,
+  ElifStatement,
+  ElseStatement,
   Expression,
   FunctionDeclaration,
   Identifier,
+  IfStatement,
   MemberExpression,
   NumericLiteral,
   ObjectLiteral,
@@ -49,13 +52,22 @@ export default class Parser {
 
   private parseStatement(): Statement {
     switch (this.at().type) {
+      // variables
       case TokenType.Let:
       case TokenType.Const:
         return this.parseVarDeclaration();
+      // functions
       case TokenType.Fn:
         return this.parseFnDeclaration();
       case TokenType.Return:
         return this.parseReturnStatement();
+      // conditions
+      case TokenType.If:
+        return this.parseIfStatement();
+      case TokenType.ElseIf:
+        throw "Elif must have a parent IF stmt!";
+      case TokenType.Else:
+        throw "Else must have a parent IF stmt!";
       default:
         return this.parseExpression();
     }
@@ -151,9 +163,110 @@ export default class Parser {
     return { kind: "ReturnStatement", value } as ReturnStatement;
   }
 
+  private parseIfStatement(): Statement {
+    // if (a > 5 va b < 4) {}
+    this.next(); // advance
+    this.expect(TokenType.OpenParen, "Expected '(' after IF statement");
+    const condition = this.parseLogicalExpression();
+    this.expect(TokenType.CloseParen, "Expected ')' after IF statement");
+    this.expect(TokenType.OpenBrace, "Expected '{' after IF statement");
+
+    const body: Statement[] = [];
+    while (
+      this.at().type != TokenType.EOF && this.at().type != TokenType.CloseBrace
+    ) {
+      body.push(this.parseStatement());
+    }
+
+    this.expect(TokenType.CloseBrace, "Expected '}' after if body");
+
+    // check for children
+    const children: Statement[] = [];
+
+    let counter = 0;
+    const checkChildren = () => {
+      if (this.at().type == TokenType.ElseIf) {
+        children.push(this.parseElifStatement());
+        checkChildren();
+      } else if (this.at().type == TokenType.Else) {
+        if (counter > 0) {
+          throw "If can contain only one else statement";
+        }
+        children.push(this.parseElseStatement());
+        counter++;
+        checkChildren();
+      }
+    };
+    // recursive check
+    checkChildren();
+
+    const ifStmt = {
+      kind: "IfStatement",
+      condition,
+      body,
+      children: children.length > 0 ? children : undefined,
+    } as IfStatement;
+
+    return ifStmt;
+  }
+
+  private parseElifStatement(): Statement {
+    // elif (a > 5 va b < 4) {}
+    this.next(); // advance
+    this.expect(TokenType.OpenParen, "Expected '(' after elif statement");
+    const condition = this.parseLogicalExpression();
+    this.expect(TokenType.CloseParen, "Expected ')' after elif statement");
+    this.expect(TokenType.OpenBrace, "Expected '{' after elif statement");
+
+    const body: Statement[] = [];
+    while (
+      this.at().type != TokenType.EOF && this.at().type != TokenType.CloseBrace
+    ) {
+      body.push(this.parseStatement());
+    }
+
+    this.expect(TokenType.CloseBrace, "Expected '}' after if body");
+
+    const elifStmt = {
+      kind: "ElifStatement",
+      condition,
+      body,
+    } as ElifStatement;
+
+    return elifStmt;
+  }
+
+  private parseElseStatement(): Statement {
+    // else {}
+    this.next(); // advance
+    this.expect(TokenType.OpenBrace, "Expected '{' after else statement");
+
+    const body: Statement[] = [];
+    while (
+      this.at().type != TokenType.EOF && this.at().type != TokenType.CloseBrace
+    ) {
+      body.push(this.parseStatement());
+    }
+
+    this.expect(TokenType.CloseBrace, "Expected '}' after if body");
+
+    const elseStmt = {
+      kind: "ElseStatement",
+      body,
+    } as ElseStatement;
+
+    return elseStmt;
+  }
+
   // - Orders Of Prescidence -
+  // Assignment
+  // Object
+  // Logical
+  // Relational
   // AdditiveExpr
   // MultiplicitaveExpr
+  // CallMember
+  // Member
   // PrimaryExpr
 
   private parseExpression(): Expression {
@@ -178,7 +291,7 @@ export default class Parser {
 
   private parseObjectExpression(): Expression {
     if (this.at().type !== TokenType.OpenBrace) {
-      return this.parseAdditiveExpression();
+      return this.parseLogicalExpression();
     }
 
     this.next();
@@ -218,6 +331,42 @@ export default class Parser {
 
     this.expect(TokenType.CloseBrace, "Object closing brace missing!");
     return { kind: "ObjectLiteral", props } as ObjectLiteral;
+  }
+
+  private parseLogicalExpression(): Expression {
+    let left = this.parseRelationalExpression();
+
+    while (["va", "yoki"].includes(this.at().value)) {
+      const operator = this.next().value;
+      const right = this.parseRelationalExpression();
+
+      left = {
+        kind: "BinaryExpression",
+        left,
+        right,
+        operator,
+      } as BinaryExpression;
+    }
+
+    return left;
+  }
+
+  private parseRelationalExpression(): Expression {
+    let left = this.parseAdditiveExpression();
+
+    while ([">", "<", "==", ">=", "<=", "!="].includes(this.at().value)) {
+      const operator = this.next().value;
+      const right = this.parseAdditiveExpression();
+
+      left = {
+        kind: "BinaryExpression",
+        left,
+        right,
+        operator,
+      } as BinaryExpression;
+    }
+
+    return left;
   }
 
   private parseAdditiveExpression(): Expression {
@@ -382,7 +531,7 @@ export default class Parser {
 
   public createAST(srcCode: string): Program {
     this.tokens = tokenize(srcCode);
-
+    // console.log(this.tokens);
     const program: Program = {
       kind: "Program",
       body: [],

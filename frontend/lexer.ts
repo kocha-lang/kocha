@@ -24,6 +24,9 @@ export enum TokenType {
   Const,
   Fn,
   Return,
+  If,
+  ElseIf,
+  Else,
 }
 
 export interface Token {
@@ -37,6 +40,12 @@ const KEYWORDS: Record<string, TokenType> = {
   "endi": TokenType.Equals,
   "fn": TokenType.Fn,
   "qaytar": TokenType.Return,
+  // conditions
+  "if": TokenType.If,
+  "elif": TokenType.ElseIf,
+  "else": TokenType.Else,
+  "va": TokenType.BinaryOperator,
+  "yoki": TokenType.BinaryOperator,
 };
 
 export function token(value: string, type: TokenType): Token {
@@ -179,12 +188,6 @@ export function tokenize(srcCode: string): Token[] {
       continue;
     }
 
-    if (src[i] == "=") {
-      finalHandle(i);
-      tokens.push(token(src[i], TokenType.Equals));
-      continue;
-    }
-
     // if int or last
     if (isInt(src[i])) {
       tempWord += src[i];
@@ -200,6 +203,24 @@ export function tokenize(srcCode: string): Token[] {
       if (i + 1 == src.length) {
         saveAlpha();
       }
+      continue;
+    }
+
+    if ([">", "<", "!", "="].includes(src[i])) {
+      if (src[i + 1] == "=") {
+        finalHandle(i);
+        tokens.push(token(`${src[i]}${src[i + 1]}`, TokenType.BinaryOperator));
+        i++; // skip the next char
+        continue;
+      }
+      if (src[i] == "=") {
+        finalHandle(i);
+        tokens.push(token(src[i], TokenType.Equals));
+        continue;
+      }
+
+      finalHandle(i);
+      tokens.push(token(src[i], TokenType.BinaryOperator));
       continue;
     }
 

@@ -1,17 +1,9 @@
-xullas bobur endi {
-  ismi: "Bobur",
-  klichka: "seriy",
-  vazni: 69,
-  qurollar: {
-    soni: 34
-  }
-};
 
-fn odamTogrisida(odam){
-  korsat("===== ODAM INFO ====");
-  korsat(odam.ismi, odam.klichka);
-  korsat(odam.vazni, "(kg)");
-  korsat("Qurollar soni: ", odam.qurollar.soni);
+if(a > 5){
+  korsat("salom");
 }
-
-odamTogrisida(bobur);
+elif (b>4){
+  korsat("jey");
+}
+else{
+}

@@ -4,6 +4,9 @@ export type NodeType =
   | "VariableDeclaration"
   | "FunctionDeclaration"
   | "ReturnStatement"
+  | "IfStatement"
+  | "ElifStatement"
+  | "ElseStatement"
   // Expressions
   | "BinaryExpression"
   | "AssignmentExpression"
@@ -43,6 +46,24 @@ export interface FunctionDeclaration extends Statement {
 export interface ReturnStatement extends Statement {
   kind: "ReturnStatement";
   value: Expression;
+}
+
+export interface IfStatement extends Statement {
+  kind: "IfStatement";
+  condition: BinaryExpression;
+  body: Statement[];
+  children?: Statement[];
+}
+
+export interface ElifStatement extends Statement {
+  kind: "ElifStatement";
+  condition: BinaryExpression;
+  body: Statement[];
+}
+
+export interface ElseStatement extends Statement {
+  kind: "ElseStatement";
+  body: Statement[];
 }
 
 export interface Expression extends Statement {}
