@@ -1,23 +1,12 @@
-fn test(a){
-  xullas a endi 5;
-  jovob b = 4;
-  korsat("Hello world!");
-  
+fn maydon(a, b){
+  qaytar a * b;
 }
 
-xullas a endi 5; # it is comment  
-xullas b = 4; # let stmt
+xullas a endi 5; 
+xullas b endi 4;
+xullas c;
+
 
 agar(a > b){
-  korsat("1");
+  korsat("Maydon =", maydon(a,b));
 }
-yemasa(a == b){
-  korsat("equal");
-}
-oxiri{
-  korsat("XAYR!");
-}
-
-jovob c = 5; # const
-
-test();
