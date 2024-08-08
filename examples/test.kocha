@@ -1,12 +1,4 @@
-xullas a endi 4;
+xullas a endi -1;
+jovob b = a * -1;
 
-agar(a%2==0 va a%3==0){
-  korsat(a);
-}
-
-oxshamasa(a==4){
-  korsat("tor chiqdi!");
-}
-oxiri{
-  korsat("chiqmadi!");
-}
+korsat(b);

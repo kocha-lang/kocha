@@ -42,7 +42,7 @@ const KEYWORDS: Record<string, TokenType> = {
   "qaytar": TokenType.Return,
   // conditions
   "agar": TokenType.If,
-  "oxshamasa": TokenType.ElseIf,
+  "yemasa": TokenType.ElseIf,
   "oxiri": TokenType.Else,
   "va": TokenType.BinaryOperator,
   "yoki": TokenType.BinaryOperator,

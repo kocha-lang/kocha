@@ -523,6 +523,24 @@ export default class Parser {
         return value;
       }
 
+      case TokenType.BinaryOperator: {
+        if (this.at().value == "-") {
+          this.next();
+          const num = this.expect(
+            TokenType.Number,
+            "Expected a number after a minus sign",
+          ).value;
+
+          return {
+            kind: "NumericLiteral",
+            value: (-1 * parseFloat(num)),
+          } as NumericLiteral;
+        }
+        console.error("Error occured in parsing a token ", this.at());
+        Deno.exit(1);
+        break;
+      }
+
       default:
         console.error("Error occured in parsing a token ", this.at());
         Deno.exit(1);
@@ -531,7 +549,7 @@ export default class Parser {
 
   public createAST(srcCode: string): Program {
     this.tokens = tokenize(srcCode);
-    // console.log(this.tokens);
+
     const program: Program = {
       kind: "Program",
       body: [],
