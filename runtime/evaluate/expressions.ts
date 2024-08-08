@@ -13,8 +13,8 @@ import {
   Identifier,
   MemberExpression,
   ObjectLiteral,
-} from "../../frontend/ast.ts";
-import Environment from "../environment.ts";
+} from "../../frontend/parser/ast.ts";
+import Environment from "../environment/env.ts";
 import { interpret } from "../interpreter.ts";
 import { StringValue } from "../values.ts";
 import { BoolValue } from "../values.ts";

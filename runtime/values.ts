@@ -1,5 +1,5 @@
-import { Statement } from "../frontend/ast.ts";
-import Environment from "./environment.ts";
+import { Statement } from "../frontend/parser/ast.ts";
+import Environment from "./environment/env.ts";
 
 export type ValueType =
   | "null"

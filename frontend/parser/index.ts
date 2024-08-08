@@ -18,7 +18,8 @@ import {
   StringLiteral,
   VariableDeclaration,
 } from "./ast.ts";
-import { Token, tokenize, TokenType } from "./lexer.ts";
+import { tokenize } from "../lexer/index.ts";
+import { Token, TokenType } from "../lexer/types.ts";
 
 export default class Parser {
   private tokens: Token[] = [];

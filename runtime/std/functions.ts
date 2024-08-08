@@ -1,4 +1,4 @@
-import Environment from "../environment.ts";
+import Environment from "../environment/env.ts";
 import { RuntimeValue } from "../values.ts";
 import { MK_NULL } from "../values.ts";
 

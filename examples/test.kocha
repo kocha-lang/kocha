@@ -1,4 +1,23 @@
-xullas a endi -1;
-jovob b = a * -1;
+fn test(a){
+  xullas a endi 5;
+  jovob b = 4;
+  korsat("Hello world!");
+  
+}
 
-korsat(b);
+xullas a endi 5; # it is comment  
+xullas b = 4; # let stmt
+
+agar(a > b){
+  korsat("1");
+}
+yemasa(a == b){
+  korsat("equal");
+}
+oxiri{
+  korsat("XAYR!");
+}
+
+jovob c = 5; # const
+
+test();

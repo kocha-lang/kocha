@@ -7,8 +7,8 @@ import {
   Program,
   ReturnStatement,
   VariableDeclaration,
-} from "../../frontend/ast.ts";
-import Environment from "../environment.ts";
+} from "../../frontend/parser/ast.ts";
+import Environment from "../environment/env.ts";
 import { interpret } from "../interpreter.ts";
 import { evalBinaryExpression } from "./expressions.ts";
 import { BoolValue } from "../values.ts";

@@ -9,11 +9,16 @@
   "categories": [
     "Programming Languages"
   ],
+  "icon": "resources/icons/1.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mmnvb/kocha"
+  },
   "contributes": {
     "languages": [{
       "id": "kocha",
       "aliases": ["Kocha Tili", "kocha"],
-      "extensions": ["kocha"],
+      "extensions": [".kocha"],
       "configuration": "./language-configuration.json"
     }],
     "grammars": [{

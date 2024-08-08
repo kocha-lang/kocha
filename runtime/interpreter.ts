@@ -16,8 +16,8 @@ import {
   Statement,
   StringLiteral,
   VariableDeclaration,
-} from "../frontend/ast.ts";
-import Environment from "./environment.ts";
+} from "../frontend/parser/ast.ts";
+import Environment from "./environment/env.ts";
 import {
   evalAssignment,
   evalBinaryExpression,
@@ -25,7 +25,7 @@ import {
   evalIdentifier,
   evalMemberExpression,
   evalObjectExpression,
-} from "./eval/expressions.ts";
+} from "./evaluate/expressions.ts";
 import {
   evalElifStatement,
   evalElseStatement,
@@ -34,7 +34,7 @@ import {
   evalProgram,
   evalReturnStatement,
   evalVarDeclaration,
-} from "./eval/statements.ts";
+} from "./evaluate/statements.ts";
 
 export function interpret(astNode: Statement, env: Environment): RuntimeValue {
   switch (astNode.kind) {

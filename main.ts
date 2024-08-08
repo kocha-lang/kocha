@@ -1,5 +1,5 @@
-import Parser from "./frontend/parser.ts";
-import { createGlobalEnv } from "./runtime/environment.ts";
+import Parser from "./frontend/parser/index.ts";
+import { createGlobalEnv } from "./runtime/environment/env.ts";
 import { interpret } from "./runtime/interpreter.ts";
 
 function repl() {
