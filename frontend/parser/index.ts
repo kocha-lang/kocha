@@ -128,7 +128,10 @@ export default class Parser {
       isConst,
     } as VariableDeclaration;
 
-    this.expect(TokenType.Semicolon, "Expected semicolon on var declr");
+    if (this.at().type == TokenType.Semicolon) {
+      this.next();
+    }
+
     return declaration;
   }
 
@@ -295,10 +298,10 @@ export default class Parser {
     if (this.at().type == TokenType.Equals) {
       this.next();
       const value = this.parseAssignmentExpression();
-      this.expect(
-        TokenType.Semicolon,
-        "Expected Semicolon after var assignment",
-      );
+
+      if (this.at().type == TokenType.Semicolon) {
+        this.next();
+      }
 
       return {
         value,
@@ -460,6 +463,11 @@ export default class Parser {
       : this.parseArgList();
 
     this.expect(TokenType.CloseParen, "Exprected close paren");
+
+    if (this.at().type == TokenType.Semicolon) {
+      this.next();
+    }
+    // this.expect(TokenType.Semicolon, "Expected semicolon after statement");
 
     return args;
   }
