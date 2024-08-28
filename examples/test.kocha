@@ -1,10 +1,2 @@
-fn maydon(a, b){
-  qaytar a * b;
-}
-
-xullas some = {
-  a: 4,
-  b: 16
-};
-
-korsat(some.a+some.b);
+xullas ism = gapir("Esmin nima? ");
+korsat("Hello", ism)

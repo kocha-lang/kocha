@@ -1,5 +1,5 @@
 import { MK_NATIVE_FN, RuntimeValue } from "../values.ts";
-import { korsat } from "../std/functions.ts";
+import { gapir, korsat } from "../std/functions.ts";
 import { MK_BOOL, MK_NULL } from "../values.ts";
 import panic from "../errors/panic.ts";
 
@@ -13,6 +13,7 @@ export function createGlobalEnv(): Environment {
 
   // std funcs
   env.declareVariable("korsat", MK_NATIVE_FN(korsat), true, -1);
+  env.declareVariable("gapir", MK_NATIVE_FN(gapir), true, -1);
 
   return env;
 }

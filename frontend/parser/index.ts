@@ -461,10 +461,6 @@ export default class Parser {
 
     this.expect(TokenType.CloseParen, "Exprected close paren");
 
-    if (this.at().type == TokenType.Semicolon) {
-      this.next();
-    }
-
     return args;
   }
 
