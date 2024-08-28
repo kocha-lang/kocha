@@ -2,11 +2,9 @@ fn maydon(a, b){
   qaytar a * b;
 }
 
-xullas a endi 5; 
-xullas b endi 4;
-xullas c;
+xullas some = {
+  a: 4,
+  b: 16
+};
 
-
-agar(a > b){
-  korsat("Maydon =", maydon(a,b));
-}
+korsat(some.a+some.b);

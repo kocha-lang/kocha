@@ -1,10 +1,11 @@
 import { KEYWORDS, Token, TokenType } from "./types.ts";
-import { isAlpha, isEscapeChar, isInt, token } from "./misc.ts";
+import { isAlpha, isEscapeChar, isInt } from "./misc.ts";
 
 export function tokenize(srcCode: string): Token[] {
   const tokens = new Array<Token>();
   const src = srcCode.split("");
   let tempWord = "";
+  let line: number = 1;
 
   // =========== Methods ============
   // append whole int or alpha word to token functions
@@ -55,8 +56,16 @@ export function tokenize(srcCode: string): Token[] {
     return i;
   };
 
+  function token(value: string, type: TokenType): Token {
+    return { value, type, line };
+  }
+
   // =========== Loop ============
   for (let i = 0; i < src.length; i++) {
+    // check if a new line appeared
+    if (src[i] == "\n") {
+      line++;
+    }
     // check if comment
     if (src[i] == "#") {
       i = findTheEnd(i);
@@ -165,7 +174,7 @@ export function tokenize(srcCode: string): Token[] {
     finalHandle(i);
   }
 
-  tokens.push({ value: "EndOfFile", type: TokenType.EOF });
+  tokens.push({ value: "EndOfFile", type: TokenType.EOF, line });
   return tokens;
 }
 

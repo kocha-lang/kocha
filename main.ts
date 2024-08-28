@@ -16,7 +16,7 @@ function repl() {
 
     const program = parser.createAST(input);
     const result = interpret(program, env);
-    console.log(result.value); // temp line
+    console.log(result.value);
   }
 }
 

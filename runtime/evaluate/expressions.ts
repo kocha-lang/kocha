@@ -18,6 +18,7 @@ import Environment from "../environment/env.ts";
 import { interpret } from "../interpreter.ts";
 import { StringValue } from "../values.ts";
 import { BoolValue } from "../values.ts";
+import panic from "../errors/panic.ts";
 
 function evalNumericBinaryExpression(
   left: NumberValue,
@@ -134,7 +135,10 @@ export function evalBinaryExpression(
         binop.operator,
       );
     }
-    throw "Bir biriga tog'ri keladigan ishni qilin. Son bilan son, gap bilan gap solishtirin faqat";
+    panic(
+      "Bir biriga tog'ri keladigan ishni qilin. Son bilan son, gap bilan gap solishtirin faqat",
+      binop.line,
+    );
   }
 
   if (binop.operator == "va" || binop.operator == "yoki") {
@@ -145,7 +149,7 @@ export function evalBinaryExpression(
         binop.operator,
       );
     }
-    throw "va/yoki faqat boolni orasida bo'lishi mumkin aka";
+    panic("va/yoki faqat boolni orasida bo'lishi mumkin aka", binop.line);
   }
 
   // arithmetic operators
@@ -164,7 +168,7 @@ export function evalIdentifier(
   ident: Identifier,
   env: Environment,
 ): RuntimeValue {
-  return env.getVariable(ident.symbol);
+  return env.getVariable(ident.symbol, ident.line);
 }
 
 export function evalAssignment(
@@ -175,11 +179,11 @@ export function evalAssignment(
   // would be awesome to implement a var switch using XOR gate
 
   if (node.owner.kind !== "Identifier") {
-    throw "Interpretor: Cannot assign to anything rather than an identifier";
+    panic("Cannot assign to anything rather than an identifier", node.line);
   }
 
   const varname = (node.owner as Identifier).symbol;
-  return env.assignVariable(varname, interpret(node.value, env));
+  return env.assignVariable(varname, interpret(node.value, env), node.line);
 }
 
 export function evalObjectExpression(
@@ -190,7 +194,7 @@ export function evalObjectExpression(
 
   for (const { key, value } of obj.props) {
     const runtimeVal = (value == undefined)
-      ? env.getVariable(key)
+      ? env.getVariable(key, obj.line)
       : interpret(value, env);
 
     object.props.set(key, runtimeVal);
@@ -218,7 +222,7 @@ export function evalCallExpression(
     if (args.length == func.params.length) {
       // declare variables to the function's scope
       for (let i = 0; i < func.params.length; i++) {
-        scope.declareVariable(func.params[i], args[i], false);
+        scope.declareVariable(func.params[i], args[i], false, call.line);
       }
 
       let result: RuntimeValue = MK_NULL();
@@ -232,11 +236,19 @@ export function evalCallExpression(
       }
       return result;
     }
-    throw `The number of args must match calling the function\n
+
+    panic(
+      `The number of args must match calling the function\n
            You gave ${args.length}\n
-           Should be: ${func.params.length}`;
+           Should be: ${func.params.length}`,
+      call.line,
+    );
   }
-  throw `${JSON.stringify(fn)} is not a function. So we can't call it!`;
+
+  panic(
+    `${JSON.stringify(fn)} is not a function. So we can't call it!`,
+    call.line,
+  );
 }
 
 function makeKeysToCall(expr: MemberExpression, env: Environment): string[] {
@@ -254,7 +266,10 @@ function makeKeysToCall(expr: MemberExpression, env: Environment): string[] {
     return [ident.symbol, prop.symbol];
   }
 
-  throw `Other kinds for objects are not supported yet\n Given: ${expr.object}`;
+  panic(
+    `Other kinds for objects are not supported yet\n Given: ${expr.object}`,
+    expr.line,
+  );
 }
 
 export function evalMemberExpression(
@@ -265,7 +280,7 @@ export function evalMemberExpression(
   // and others are top -> bottom keys
   // for struct like a.x.y we will have an array of strings [a,x,y]
   const keys = makeKeysToCall(expr, env);
-  let variable = env.getVariable(keys[0]) as ObjectValue;
+  let variable = env.getVariable(keys[0], expr.line) as ObjectValue;
 
   // emulate recursion with for loop
   for (let i = 1; i < keys.length; i++) {

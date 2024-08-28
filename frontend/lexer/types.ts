@@ -32,6 +32,7 @@ export enum TokenType {
 export interface Token {
   value: string;
   type: TokenType;
+  line: number;
 }
 
 export const KEYWORDS: Record<string, TokenType> = {

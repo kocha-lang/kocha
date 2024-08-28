@@ -1,9 +1,3 @@
-import { Token, TokenType } from "./types.ts";
-
-export function token(value: string, type: TokenType): Token {
-  return { value, type };
-}
-
 export function isAlpha(src: string) {
   return /[a-zA-Z]/.test(src);
 }

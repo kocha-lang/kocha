@@ -36,6 +36,7 @@ export function evalVarDeclaration(
     declaration.identifier,
     value,
     declaration.isConst,
+    declaration.line,
   );
 }
 
@@ -51,7 +52,7 @@ export function evalFnDeclaration(
     body: declaration.body,
   } as FnValue;
 
-  return env.declareVariable(declaration.name, fn, true);
+  return env.declareVariable(declaration.name, fn, true, declaration.line);
 }
 
 export function evalReturnStatement(

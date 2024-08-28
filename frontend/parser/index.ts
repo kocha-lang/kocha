@@ -39,16 +39,27 @@ export default class Parser {
     return this.tokens[this.index - 1];
   }
 
+  private line(): number {
+    return this.at().line;
+  }
+
   private expect(type: TokenType, error: string): Token {
     this.index++;
     const prev = this.tokens[this.index - 1];
     if (!prev || prev.type != type) {
       console.error(
-        `Parser error:\n ${error}\n  -> ${prev} - Expected: ${type}`,
+        `Parser error: ${error} ->
+        ${prev} - 
+        Expected: ${type}
+        Line: ${this.line()}`,
       );
       Deno.exit(1);
     }
     return prev;
+  }
+
+  private panic(msg: string): never {
+    throw `Parse Error: ${msg} Line: ${this.line()}`;
   }
 
   private parseStatement(): Statement {
@@ -66,9 +77,11 @@ export default class Parser {
       case TokenType.If:
         return this.parseIfStatement();
       case TokenType.ElseIf:
-        throw "Elif must have a parent IF stmt!";
+        this.panic("Elif must have a parent IF stmt!");
+        /* falls through */
       case TokenType.Else:
-        throw "Else must have a parent IF stmt!";
+        this.panic("Else must have a parent IF stmt!");
+        /* falls through */
       default:
         return this.parseExpression();
     }
@@ -94,10 +107,11 @@ export default class Parser {
     ).value;
 
     if (this.at().type == TokenType.Semicolon) {
-      this.next();
       if (isConst) {
-        throw "Const must contain a value fool!";
+        this.panic("Const must contain a value fool!");
       }
+
+      this.next();
 
       return {
         kind: "VariableDeclaration",
@@ -131,7 +145,7 @@ export default class Parser {
 
     for (const arg of args) {
       if (arg.kind !== "Identifier") {
-        throw "Expected identifier on func declaration";
+        this.panic("Expected identifier on func declaration");
       }
       params.push((arg as Identifier).symbol);
     }
@@ -191,7 +205,7 @@ export default class Parser {
         checkChildren();
       } else if (this.at().type == TokenType.Else) {
         if (counter > 0) {
-          throw "If can contain only one else statement";
+          this.panic("If can contain only one else statement");
         }
         children.push(this.parseElseStatement());
         counter++;
@@ -275,11 +289,17 @@ export default class Parser {
   }
 
   private parseAssignmentExpression(): Expression {
+    // syntax: var = expr();
     const left = this.parseObjectExpression();
 
     if (this.at().type == TokenType.Equals) {
       this.next();
       const value = this.parseAssignmentExpression();
+      this.expect(
+        TokenType.Semicolon,
+        "Expected Semicolon after var assignment",
+      );
+
       return {
         value,
         owner: left,
@@ -320,7 +340,7 @@ export default class Parser {
       // { key: value }
       this.expect(TokenType.Colon, "Missing colon after key");
       const value = this.parseExpression();
-      props.push({ kind: "Property", key, value });
+      props.push({ kind: "Property", key, value, line: this.line() });
 
       if (this.at().type != TokenType.CloseBrace) {
         this.expect(
@@ -474,7 +494,7 @@ export default class Parser {
         prop = this.parsePrimaryExpression();
 
         if (prop.kind != "Identifier") {
-          throw "Nuxtadan keyin normalniy klichka berin";
+          this.panic("Nuxtadan keyin normalniy klichka berin");
         }
       } // syntax: obj[computedValue]
       else {
@@ -537,14 +557,13 @@ export default class Parser {
             value: (-1 * parseFloat(num)),
           } as NumericLiteral;
         }
-        console.error("Error occured in parsing a token ", this.at());
-        Deno.exit(1);
+
+        this.panic(`Error occured in parsing a token ${this.at()}`);
         break;
       }
 
       default:
-        console.error("Error occured in parsing a token ", this.at());
-        Deno.exit(1);
+        this.panic(`Error occured in parsing a token ${this.at()}`);
     }
   }
 
@@ -554,13 +573,18 @@ export default class Parser {
     const program: Program = {
       kind: "Program",
       body: [],
+      line: 0,
     };
 
     this.index = 0;
 
     // parse
     while (this.notEOF()) {
-      program.body.push(this.parseStatement());
+      const start = this.tokens[this.index].line;
+      const stmt = this.parseStatement();
+
+      stmt.line = start;
+      program.body.push(stmt);
     }
 
     return program;
