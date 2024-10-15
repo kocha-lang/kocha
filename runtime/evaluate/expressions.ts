@@ -174,19 +174,6 @@ export function evalIdentifier(
 ): RuntimeValue {
   const varibale = env.getVariable(ident.symbol, ident.line);
 
-  if (varibale.type == "array") {
-    const temp: string[] = [];
-    (varibale as ArrayValue).values.forEach((el) => {
-      temp.push((el.value ?? "null").toString());
-    });
-    return MK_STR("[ " + temp.join(", ") + " ]");
-  }
-
-  // shittiest code of my codebase :)
-  if (varibale.type == "object") {
-    return MK_STR([...(varibale as ObjectValue).props.entries()].toString());
-  }
-
   return varibale;
 }
 
@@ -277,6 +264,24 @@ export function evalCallExpression(
     );
   }
 
+  if (call.caller.kind == "MemberExpression") {
+    const obj = (call.caller as MemberExpression).object as Identifier;
+    const cur = env.getVariable(obj.symbol, call.line) as ArrayValue;
+    if (fn.value == "push" && args.length == 1) {
+      cur.values.push(args[0]);
+      return env.updateVariable(obj.symbol, cur, call.line);
+    } else if (fn.value == "pop" && args.length == 0) {
+      cur.values.pop();
+      return env.updateVariable(obj.symbol, cur, call.line);
+    } else if (fn.value == "shift" && args.length == 0) {
+      cur.values.shift();
+      return env.updateVariable(obj.symbol, cur, call.line);
+    } else if (fn.value == "clear" && args.length == 0) {
+      cur.values = [];
+      return env.updateVariable(obj.symbol, cur, call.line);
+    }
+  }
+
   panic(
     `${JSON.stringify(fn)} is not a function. So we can't call it!`,
     call.line,
@@ -324,20 +329,19 @@ export function evalMemberExpression(
     return arr.values[index.value];
   }
 
-  // todo: implement push command
-  // if (expr.prop.kind == "Identifier" && expr.object.kind == "Identifier") {
-  //   const symbol = (expr.prop as Identifier).symbol;
+  if (expr.prop.kind == "Identifier" && expr.object.kind == "Identifier") {
+    const symbol = (expr.prop as Identifier).symbol;
 
-  //   if (symbol == "push") {
-  //     const parent = env.getVariable(
-  //       (expr.object as Identifier).symbol,
-  //       expr.line,
-  //     );
-  //     console.log(parent);
-
-  //     return env.getVariable(symbol, expr.line);
-  //   }
-  // }
+    if (symbol == "qosh") {
+      return MK_STR("push");
+    } else if (symbol == "chop") {
+      return MK_STR("pop");
+    } else if (symbol == "sur") {
+      return MK_STR("shift");
+    } else if (symbol == "yuqot") {
+      return MK_STR("clear");
+    }
+  }
 
   // it just finds an array of keys in the order where first element is a declared variable
   // and others are top -> bottom keys

@@ -79,4 +79,15 @@ export default class Environment {
     // never gonna be undefined thanks to resolve
     return env.variables.get(name) as RuntimeValue;
   }
+
+  public updateVariable(
+    name: string,
+    updated: RuntimeValue,
+    line: number,
+  ): RuntimeValue {
+    const env = this.resolve(name, line);
+    env.variables.set(name, updated);
+
+    return updated;
+  }
 }

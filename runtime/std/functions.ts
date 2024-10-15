@@ -1,9 +1,40 @@
 import Environment from "../environment/env.ts";
-import { MK_NUMBER, MK_STR, RuntimeValue, StringValue } from "../values.ts";
+import {
+  type ArrayValue,
+  MK_NUMBER,
+  MK_STR,
+  RuntimeValue,
+  StringValue,
+} from "../values.ts";
 import { MK_NULL } from "../values.ts";
+import { ObjectValue } from "../values.ts";
 
 export function korsat(args: RuntimeValue[], _env: Environment) {
-  console.log(...args.map((arg) => arg.value));
+  console.log(...args.map((arg) => {
+    // validate
+    if (arg == undefined) {
+      return;
+    }
+
+    // handle array print
+    if (arg.type == "array") {
+      const temp: string[] = [];
+      (arg as ArrayValue).values.forEach((el) => {
+        temp.push((el.value ?? "null").toString());
+      });
+      return "[ " + temp.join(", ") + " ]";
+    }
+
+    // handle object print
+    // shittiest code of my codebase :)
+    if (arg.type == "object") {
+      return [...(arg as ObjectValue).props.entries()].toString();
+    }
+
+    // primitive print
+    return arg.value;
+  }));
+
   return MK_NULL();
 }
 
