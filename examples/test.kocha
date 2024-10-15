@@ -1,15 +1,2 @@
-xullas ism = gapir("Ismin nima sani? ");
-xullas yosh = son(gapir("Yoshin nechida? "));
-
-xullas text = ""
-
-agar(yosh > 18){
-  text = "Kotta"
-} 
-yemasa (yosh < 12) {
-  text = "Yosh" 
-} oxiri{
-  text = "patsan"
-}
-
-korsat(text, "Brat", ism, "ni yoshi", yosh, "da ekan");
+xullas a = [1, 2, 3];
+korsat(a[2] + a[1]);

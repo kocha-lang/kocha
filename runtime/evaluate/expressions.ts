@@ -1,17 +1,21 @@
 import {
+  ArrayValue,
   FnValue,
   MK_NULL,
+  MK_STR,
   NativeFnValue,
   NumberValue,
   ObjectValue,
   RuntimeValue,
 } from "../values.ts";
 import {
+  type ArrayLiteral,
   AssignmentExpression,
   BinaryExpression,
   CallExpression,
   Identifier,
   MemberExpression,
+  type NumericLiteral,
   ObjectLiteral,
 } from "../../frontend/parser/ast.ts";
 import Environment from "../environment/env.ts";
@@ -168,7 +172,22 @@ export function evalIdentifier(
   ident: Identifier,
   env: Environment,
 ): RuntimeValue {
-  return env.getVariable(ident.symbol, ident.line);
+  const varibale = env.getVariable(ident.symbol, ident.line);
+
+  if (varibale.type == "array") {
+    const temp: string[] = [];
+    (varibale as ArrayValue).values.forEach((el) => {
+      temp.push((el.value ?? "null").toString());
+    });
+    return MK_STR("[ " + temp.join(", ") + " ]");
+  }
+
+  // shittiest code of my codebase :)
+  if (varibale.type == "object") {
+    return MK_STR([...(varibale as ObjectValue).props.entries()].toString());
+  }
+
+  return varibale;
 }
 
 export function evalAssignment(
@@ -201,6 +220,19 @@ export function evalObjectExpression(
   }
 
   return object;
+}
+
+export function evalArrayExpression(
+  arr: ArrayLiteral,
+  env: Environment,
+): RuntimeValue {
+  const array = { type: "array", values: [] as RuntimeValue[] } as ArrayValue;
+
+  for (const element of arr.values) {
+    array.values.push(interpret(element, env));
+  }
+
+  return array;
 }
 
 export function evalCallExpression(
@@ -276,6 +308,37 @@ export function evalMemberExpression(
   expr: MemberExpression,
   env: Environment,
 ): RuntimeValue {
+  // give array's elements
+  if (expr.prop.kind == "NumericLiteral") {
+    const arr = env.getVariable(
+      (expr.object as Identifier).symbol,
+      expr.line,
+    ) as ArrayValue;
+
+    const index = expr.prop as NumericLiteral;
+
+    if (index.value >= arr.values.length) {
+      panic("Index out of bounds", expr.line);
+    }
+
+    return arr.values[index.value];
+  }
+
+  // todo: implement push command
+  // if (expr.prop.kind == "Identifier" && expr.object.kind == "Identifier") {
+  //   const symbol = (expr.prop as Identifier).symbol;
+
+  //   if (symbol == "push") {
+  //     const parent = env.getVariable(
+  //       (expr.object as Identifier).symbol,
+  //       expr.line,
+  //     );
+  //     console.log(parent);
+
+  //     return env.getVariable(symbol, expr.line);
+  //   }
+  // }
+
   // it just finds an array of keys in the order where first element is a declared variable
   // and others are top -> bottom keys
   // for struct like a.x.y we will have an array of strings [a,x,y]

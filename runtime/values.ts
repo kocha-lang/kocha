@@ -8,7 +8,8 @@ export type ValueType =
   | "boolean"
   | "object"
   | "native-fn"
-  | "function";
+  | "function"
+  | "array";
 
 export interface RuntimeValue {
   type: ValueType;
@@ -54,6 +55,11 @@ export function MK_STR(value: string) {
 export interface ObjectValue extends RuntimeValue {
   type: "object";
   props: Map<string, RuntimeValue>;
+}
+
+export interface ArrayValue extends RuntimeValue {
+  type: "array";
+  values: RuntimeValue[];
 }
 
 export type FunctionCall = (

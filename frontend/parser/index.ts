@@ -1,4 +1,5 @@
 import {
+  ArrayLiteral,
   AssignmentExpression,
   BinaryExpression,
   CallExpression,
@@ -293,7 +294,7 @@ export default class Parser {
 
   private parseAssignmentExpression(): Expression {
     // syntax: var = expr();
-    const left = this.parseObjectExpression();
+    const left = this.parseArrayExpression();
 
     if (this.at().type == TokenType.Equals) {
       this.next();
@@ -311,6 +312,31 @@ export default class Parser {
     }
 
     return left;
+  }
+
+  private parseArrayExpression(): Expression {
+    if (this.at().type !== TokenType.OpenBracket) {
+      return this.parseObjectExpression();
+    }
+
+    this.next();
+    const values = new Array<Expression>();
+
+    while (this.notEOF() && this.at().type != TokenType.CloseBracket) {
+      if (this.at().type == TokenType.Comma) {
+        this.next();
+        continue;
+      }
+      values.push(this.parseExpression());
+    }
+
+    this.expect(TokenType.CloseBracket, "Closing bracket expected on array");
+
+    if (this.at().type == TokenType.Semicolon) {
+      this.next();
+    }
+
+    return { kind: "ArrayLiteral", values } as ArrayLiteral;
   }
 
   private parseObjectExpression(): Expression {
