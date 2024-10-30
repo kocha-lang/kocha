@@ -6,7 +6,6 @@ import {
   RuntimeValue,
 } from "../values.ts";
 import {
-  type ContinueStatement,
   ElifStatement,
   ElseStatement,
   FunctionDeclaration,
@@ -18,9 +17,6 @@ import {
 } from "../../frontend/parser/ast.ts";
 import Environment from "../environment/env.ts";
 import { interpret } from "../interpreter.ts";
-import { evalBinaryExpression } from "./expressions.ts";
-import { BoolValue } from "../values.ts";
-import { MK_BOOL } from "../values.ts";
 
 export function evalProgram(program: Program, env: Environment): RuntimeValue {
   let lastInterpreted: RuntimeValue = MK_NULL();
