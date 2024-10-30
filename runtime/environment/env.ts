@@ -1,5 +1,5 @@
 import { MK_NATIVE_FN, RuntimeValue } from "../values.ts";
-import { gapir, korsat, son } from "../std/functions.ts";
+import { gapir, kelishtir, korsat, shara, son } from "../std/functions.ts";
 import { MK_BOOL, MK_NULL } from "../values.ts";
 import panic from "../errors/panic.ts";
 
@@ -12,9 +12,13 @@ export function createGlobalEnv(): Environment {
   env.declareVariable("pustoy", MK_NULL(), true, -1);
 
   // std funcs
-  env.declareVariable("korsat", MK_NATIVE_FN(korsat), true, -1);
-  env.declareVariable("gapir", MK_NATIVE_FN(gapir), true, -1);
-  env.declareVariable("son", MK_NATIVE_FN(son), true, -1);
+  // I/O
+  env.declareVariable("korsat", MK_NATIVE_FN(korsat), true, -1); // print()
+  env.declareVariable("gapir", MK_NATIVE_FN(gapir), true, -1); // input()
+  // Math
+  env.declareVariable("son", MK_NATIVE_FN(son), true, -1); // converts str to number
+  env.declareVariable("shara", MK_NATIVE_FN(shara), true, -1); // random(min, max)
+  env.declareVariable("kelishtir", MK_NATIVE_FN(kelishtir), true, -1); // round(n)
 
   return env;
 }

@@ -1,8 +1,10 @@
 import Environment from "../environment/env.ts";
+import { stdPanic } from "../errors/panic.ts";
 import {
   type ArrayValue,
   MK_NUMBER,
   MK_STR,
+  type NumberValue,
   RuntimeValue,
   StringValue,
 } from "../values.ts";
@@ -59,4 +61,38 @@ export function son(args: RuntimeValue[]) {
 
   // todo: make proper error handling
   return MK_NULL();
+}
+
+export function shara(args: RuntimeValue[]) {
+  if (args.length != 2) {
+    stdPanic(
+      `Random function needs 2 arguments, but ${args.length} were passed`,
+    );
+  }
+
+  if (args[0].type != "number" || args[1].type != "number") {
+    stdPanic("Arguments for random function must be of a number type");
+  }
+
+  // at this point we know that we 2 args that are numbers
+  const min = (args[0] as NumberValue).value;
+  const max = (args[1] as NumberValue).value;
+
+  return MK_NUMBER(Math.random() * (max - min) + min);
+}
+
+export function kelishtir(args: RuntimeValue[]) {
+  if (args.length != 1) {
+    stdPanic(
+      `Round function needs 1 argument, but ${args.length} were passed`,
+    );
+  }
+
+  if (args[0].type != "number") {
+    stdPanic("Arguments for round function must be of a number type");
+  }
+
+  // bro really thinks he wrote a programming language
+  // it is just a wrapper of js functions...
+  return MK_NUMBER(Math.round((args[0] as NumberValue).value));
 }

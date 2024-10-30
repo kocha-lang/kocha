@@ -18,6 +18,7 @@ import {
   MemberExpression,
   type NumericLiteral,
   ObjectLiteral,
+  type StringLiteral,
 } from "../../frontend/parser/ast.ts";
 import Environment from "../environment/env.ts";
 import { interpret } from "../interpreter.ts";
@@ -293,16 +294,33 @@ export function evalCallExpression(
 function makeKeysToCall(expr: MemberExpression, env: Environment): string[] {
   if (expr.object.kind == "MemberExpression") {
     const last = makeKeysToCall(expr.object as MemberExpression, env);
-    const prop = expr.prop as Identifier;
-    last.push(prop.symbol);
+
+    if (expr.prop.kind == "Identifier") {
+      last.push((expr.prop as Identifier).symbol);
+    } else if (expr.prop.kind == "StringLiteral") {
+      last.push((expr.prop as StringLiteral).value);
+    }
+
     return last;
   }
 
   if (expr.object.kind == "Identifier") {
     const ident = expr.object as Identifier;
-    const prop = expr.prop as Identifier;
+    const prop = expr.prop;
 
-    return [ident.symbol, prop.symbol];
+    if (prop.kind == "Identifier") {
+      const val = env.getVariable((prop as Identifier).symbol, expr.line);
+
+      if (val.type != "string") {
+        panic("Only string computed is supported", expr.line);
+      }
+
+      return [ident.symbol, (val as StringValue).value];
+    }
+
+    return expr.prop.kind == "Identifier"
+      ? [ident.symbol, (expr.prop as Identifier).symbol]
+      : [ident.symbol, (expr.prop as StringLiteral).value];
   }
 
   panic(
@@ -311,10 +329,28 @@ function makeKeysToCall(expr: MemberExpression, env: Environment): string[] {
   );
 }
 
+/**
+ * It handles a lot of types of member expr syntax \
+ * *~That's why it messy (pls fix that)*
+ *
+ * **Arrays**
+ * - `a[0]` - get by index
+ * - `a[i+x]` - binary expr as an index
+ * - *todo: `a[x][b]` - multi dimensional array calls*
+ *
+ * **Objects**
+ * - `b.x` - dot notation syntax
+ * - `b.x.m.n` - nested call syntax
+ * - `b["x"]` - computed syntax
+ * - `b["x"]["m"]["n"]` - nested call computed syntax
+ * ``
+ */
 export function evalMemberExpression(
   expr: MemberExpression,
   env: Environment,
 ): RuntimeValue {
+  // todo: massive refactor needed. Messy and unreadable if stmts
+  // this function must handle a lot of types of syntax
   // give array's elements
   if (expr.prop.kind == "NumericLiteral") {
     const arr = env.getVariable(
@@ -322,6 +358,10 @@ export function evalMemberExpression(
       expr.line,
     ) as ArrayValue;
 
+    // check if an object was here
+    if (arr.values == undefined) {
+      panic("This syntax is supported by arrays only", expr.line);
+    }
     const index = expr.prop as NumericLiteral;
 
     if (index.value >= arr.values.length) {
@@ -345,20 +385,9 @@ export function evalMemberExpression(
     } else if (symbol == "razmer") {
       return MK_STR("getlength");
     }
+  }
 
-    const index = env.getVariable(symbol, expr.line) as NumberValue;
-
-    const arr = env.getVariable(
-      (expr.object as Identifier).symbol,
-      expr.line,
-    ) as ArrayValue;
-
-    if (index.value >= arr.values.length) {
-      panic("Index out of bounds", expr.line);
-    }
-
-    return arr.values[index.value];
-  } else if (
+  if (
     expr.prop.kind == "BinaryExpression" && expr.object.kind == "Identifier"
   ) {
     const binexpr = expr.prop as BinaryExpression;
@@ -369,6 +398,11 @@ export function evalMemberExpression(
       expr.line,
     ) as ArrayValue;
 
+    // check if an object was here
+    if (arr.values == undefined) {
+      panic("This syntax is supported by arrays only", expr.line);
+    }
+
     if (index.value >= arr.values.length) {
       panic("Index out of bounds", expr.line);
     }
@@ -376,6 +410,25 @@ export function evalMemberExpression(
     return arr.values[index.value];
   }
 
+  if (expr.computed && expr.prop.kind == "Identifier") {
+    const symbol = (expr.object as Identifier).symbol;
+    const index = env.getVariable(
+      (expr.prop as Identifier).symbol,
+      expr.line,
+    ) as NumberValue;
+    const arr = env.getVariable(
+      symbol,
+      expr.line,
+    ) as ArrayValue;
+
+    if (arr.values != undefined) {
+      if (index.value >= arr.values.length) {
+        panic("Index out of bounds", expr.line);
+      }
+
+      return arr.values[index.value];
+    }
+  }
   // it just finds an array of keys in the order where first element is a declared variable
   // and others are top -> bottom keys
   // for struct like a.x.y we will have an array of strings [a,x,y]

@@ -1,0 +1,63 @@
+korsat("");
+korsat("===== DON-DON ZIKI =====");
+korsat("stop - tugatish uchun");
+korsat("");
+
+jovob sxema = {
+  qaychi: {
+    yutadi: "varro",
+    yutqazadi: "tosh"
+  },
+  varro: {
+    yutadi: "tosh",
+    yutqazadi: "qaychi"
+  },
+  tosh: {
+    yutadi: "qaychi",
+    yutqazadi: "varro"
+  }
+}
+
+# xisob
+xullas odam = 0;
+xullas komp = 0;
+
+# oyin
+xullas oyinchi endi "";
+xullas round = 1;
+jovob yurishla = ["qaychi", "tosh", "varro"];
+
+
+tema oyin(yurish){
+  # komputerni tasodif yurishi
+  xullas index = kelishtir(shara(0,2));
+  xullas kompYurish = yurishla[index];
+  korsat(" Man yurdim", kompYurish);
+
+  # kim yutdi?
+  agar(sxema[yurish].yutadi == kompYurish){
+    odam = odam + 1;
+    korsat("-> Xullas yuttin ukam");
+  }
+  yemasa(sxema[yurish].yutqazadi == kompYurish){
+    komp = komp + 1;
+    korsat("-> Yutqazdin, bo'r organ oynawwi...");
+  }
+  oxiri{
+    korsat("-> Dostli");
+  }
+}
+
+aylan(oyinchi != "stop"){
+  korsat("------- ROUND", round, "-------");
+  korsat("       ", odam, ":", komp, "      ")
+  korsat("Yur endi", yurishla, ":")
+  oyinchi = gapir("");
+
+  agar(oyinchi == "tosh" yoki oyinchi == "qaychi" yoki oyinchi == "varro"){
+    oyin(oyinchi);
+    round = round + 1;
+  } oxiri{
+    korsat("Norm narsa yozgin...");
+  }
+}
