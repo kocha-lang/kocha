@@ -32,11 +32,11 @@
       "patterns": [
         {
           "name": "keyword.control.kocha",
-          "match": "\\b(agar|yemasa|oxiri|aylan|for|qaytar)\\b"
+          "match": "\\b(agar|yemasa|oxiri|aylan|qarama|toxta|qaytar)\\b"
         },
         {
           "name": "keyword.declaration.kocha",
-          "match": "\\b(xullas|jovob|endi|fn)\\b"
+          "match": "\\b(xullas|jovob|endi|tema)\\b"
         }
       ]
     },

@@ -1,5 +1,4 @@
-
-fn fib(n){
+tema fib(n){
   xullas a = [1, 1];
   xullas i = 0;
 

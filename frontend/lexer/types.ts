@@ -44,7 +44,7 @@ export const KEYWORDS: Record<string, TokenType> = {
   "xullas": TokenType.Let,
   "jovob": TokenType.Const,
   "endi": TokenType.Equals,
-  "fn": TokenType.Fn,
+  "tema": TokenType.Fn,
   "qaytar": TokenType.Return,
   // conditions
   "agar": TokenType.If,
