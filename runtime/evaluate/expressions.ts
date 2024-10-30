@@ -174,7 +174,6 @@ export function evalIdentifier(
   env: Environment,
 ): RuntimeValue {
   const varibale = env.getVariable(ident.symbol, ident.line);
-
   return varibale;
 }
 
@@ -330,9 +329,9 @@ export function evalMemberExpression(
     }
 
     return arr.values[index.value];
-  }
-
-  if (expr.prop.kind == "Identifier" && expr.object.kind == "Identifier") {
+  } else if (
+    expr.prop.kind == "Identifier" && expr.object.kind == "Identifier"
+  ) {
     const symbol = (expr.prop as Identifier).symbol;
 
     if (symbol == "qosh") {
@@ -346,6 +345,35 @@ export function evalMemberExpression(
     } else if (symbol == "razmer") {
       return MK_STR("getlength");
     }
+
+    const index = env.getVariable(symbol, expr.line) as NumberValue;
+
+    const arr = env.getVariable(
+      (expr.object as Identifier).symbol,
+      expr.line,
+    ) as ArrayValue;
+
+    if (index.value >= arr.values.length) {
+      panic("Index out of bounds", expr.line);
+    }
+
+    return arr.values[index.value];
+  } else if (
+    expr.prop.kind == "BinaryExpression" && expr.object.kind == "Identifier"
+  ) {
+    const binexpr = expr.prop as BinaryExpression;
+    const index = evalBinaryExpression(binexpr, env) as NumberValue;
+
+    const arr = env.getVariable(
+      (expr.object as Identifier).symbol,
+      expr.line,
+    ) as ArrayValue;
+
+    if (index.value >= arr.values.length) {
+      panic("Index out of bounds", expr.line);
+    }
+
+    return arr.values[index.value];
   }
 
   // it just finds an array of keys in the order where first element is a declared variable

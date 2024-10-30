@@ -9,7 +9,8 @@ export type ValueType =
   | "object"
   | "native-fn"
   | "function"
-  | "array";
+  | "array"
+  | "flow";
 
 export interface RuntimeValue {
   type: ValueType;
@@ -36,6 +37,13 @@ export interface BoolValue extends RuntimeValue {
   value: boolean;
 }
 
+export interface FlowValue extends RuntimeValue {
+  type: "flow";
+  catched: boolean;
+  skip: boolean;
+  stop: boolean;
+}
+
 export function MK_NUMBER(n: number) {
   return { type: "number", value: n } as NumberValue;
 }
@@ -50,6 +58,16 @@ export function MK_BOOL(value = true) {
 
 export function MK_STR(value: string) {
   return { type: "string", value } as StringValue;
+}
+
+/**
+ * @param catched did it catch by children of if stmt or not
+ * @param skip did it faced a continue stmt
+ * @param stop did it faced a break stmt
+ * @returns
+ */
+export function MK_FLOW(catched: boolean, skip: boolean, stop: boolean) {
+  return { type: "flow", catched, skip, stop } as FlowValue;
 }
 
 export interface ObjectValue extends RuntimeValue {

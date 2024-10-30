@@ -7,6 +7,9 @@ export type NodeType =
   | "IfStatement"
   | "ElifStatement"
   | "ElseStatement"
+  | "WhileStatement"
+  | "ContinueStatement"
+  | "BreakStatement"
   // Expressions
   | "BinaryExpression"
   | "AssignmentExpression"
@@ -52,20 +55,34 @@ export interface ReturnStatement extends Statement {
 
 export interface IfStatement extends Statement {
   kind: "IfStatement";
-  condition: BinaryExpression;
+  condition: BinaryExpression | Identifier;
   body: Statement[];
   children?: Statement[];
 }
 
 export interface ElifStatement extends Statement {
   kind: "ElifStatement";
-  condition: BinaryExpression;
+  condition: BinaryExpression | Identifier;
   body: Statement[];
 }
 
 export interface ElseStatement extends Statement {
   kind: "ElseStatement";
   body: Statement[];
+}
+
+export interface WhileStatement extends Statement {
+  kind: "WhileStatement";
+  condition: BinaryExpression | Identifier;
+  body: Statement[];
+}
+
+export interface ContinueStatement extends Statement {
+  kind: "ContinueStatement";
+}
+
+export interface BreakStatement extends Statement {
+  kind: "BreakStatement";
 }
 
 export interface Expression extends Statement {}

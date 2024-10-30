@@ -8,7 +8,7 @@ export function createGlobalEnv(): Environment {
 
   // std vars
   env.declareVariable("true", MK_BOOL(), true, -1);
-  env.declareVariable("false", MK_BOOL(false), true, -1);
+  env.declareVariable("lagmon", MK_BOOL(false), true, -1);
   env.declareVariable("pustoy", MK_NULL(), true, -1);
 
   // std funcs

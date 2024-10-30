@@ -1,5 +1,14 @@
 
+fn fib(n){
+  xullas a = [1, 1];
+  xullas i = 0;
 
-agar(4 == 3){
-  korsat("Hello World!")
+  aylan(i<n){
+    a.qosh(a[i] + a[i+1]);
+    i = i + 1;
+  }
+
+  qaytar a;
 }
+
+korsat(fib(10));

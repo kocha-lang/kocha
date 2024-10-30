@@ -32,7 +32,7 @@
       "patterns": [
         {
           "name": "keyword.control.kocha",
-          "match": "\\b(agar|yemasa|oxiri|while|for|qaytar)\\b"
+          "match": "\\b(agar|yemasa|oxiri|aylan|for|qaytar)\\b"
         },
         {
           "name": "keyword.declaration.kocha",

@@ -1,5 +1,12 @@
-import { FnValue, MK_NULL, RuntimeValue } from "../values.ts";
 import {
+  type FlowValue,
+  FnValue,
+  MK_FLOW,
+  MK_NULL,
+  RuntimeValue,
+} from "../values.ts";
+import {
+  type ContinueStatement,
   ElifStatement,
   ElseStatement,
   FunctionDeclaration,
@@ -7,6 +14,7 @@ import {
   Program,
   ReturnStatement,
   VariableDeclaration,
+  type WhileStatement,
 } from "../../frontend/parser/ast.ts";
 import Environment from "../environment/env.ts";
 import { interpret } from "../interpreter.ts";
@@ -65,59 +73,124 @@ export function evalReturnStatement(
 export function evalIfStatement(
   statement: IfStatement,
   env: Environment,
-): RuntimeValue {
+): FlowValue {
   const scope = new Environment(env);
-  const condition = evalBinaryExpression(statement.condition, env);
-
+  const condition = interpret(statement.condition, env);
   // in case parent if statement must be called
   if (condition.value) {
     // execute line by line
     // can customize to handle break and continue keywords
     // or return a value from a statement but don't need it now
     for (const stmt of statement.body) {
-      interpret(stmt, scope);
+      const val = interpret(stmt, scope);
+
+      if (val.type == "flow") {
+        const flow = val as FlowValue;
+
+        if (flow.skip || flow.stop) {
+          return MK_FLOW(true, flow.skip, flow.stop);
+        }
+      }
     }
-    return MK_NULL();
+    return MK_FLOW(true, false, false);
   }
 
   if (statement.children) {
     for (const child of statement.children) {
       // run everychild till one of them will catch
       const result = interpret(child, env);
-      if (result.value == true) {
-        break;
+
+      if (result.type == "flow") {
+        const flow = result as FlowValue;
+
+        if (flow.catched) {
+          if (flow.skip || flow.stop) {
+            return MK_FLOW(true, flow.skip, flow.stop);
+          }
+          break;
+        }
       }
     }
   }
 
-  return MK_NULL();
+  return MK_FLOW(false, false, false);
 }
 
 export function evalElifStatement(
   statement: ElifStatement,
   env: Environment,
-): BoolValue {
+): FlowValue {
   const scope = new Environment(env);
-  const condition = evalBinaryExpression(statement.condition, env);
+  const condition = interpret(statement.condition, env);
 
   if (condition.value) {
     // execute line by line
     // can customize to handle break and continue keywords
     // or return a value from a statement but don't need it now
     for (const stmt of statement.body) {
-      interpret(stmt, scope);
+      const val = interpret(stmt, scope);
+
+      if (val.type == "flow") {
+        const flow = val as FlowValue;
+
+        if (flow.skip || flow.stop) {
+          return MK_FLOW(true, flow.skip, flow.stop);
+        }
+      }
     }
-    return MK_BOOL(true);
+
+    return MK_FLOW(true, false, false);
   }
 
-  return MK_BOOL(false);
+  return MK_FLOW(false, false, false);
 }
 
-export function evalElseStatement(statement: ElseStatement, env: Environment) {
+export function evalElseStatement(
+  statement: ElseStatement,
+  env: Environment,
+): FlowValue {
   const scope = new Environment(env);
 
   for (const stmt of statement.body) {
-    interpret(stmt, scope);
+    const val = interpret(stmt, scope);
+
+    if (val.type == "flow") {
+      const flow = val as FlowValue;
+
+      if (flow.skip || flow.stop) {
+        return MK_FLOW(true, flow.skip, flow.stop);
+      }
+    }
   }
-  return MK_BOOL(true);
+
+  return MK_FLOW(true, false, false);
+}
+
+// bro thinks he wrote a programming language
+// isn't it just a wrapper of js functions?
+// bro write some llvm instad...
+
+export function evalWhileStatement(
+  statement: WhileStatement,
+  env: Environment,
+) {
+  const scope = new Environment(env);
+
+  while (interpret(statement.condition, env).value) {
+    for (const stmt of statement.body) {
+      const val = interpret(stmt, scope);
+
+      if (val.type == "flow") {
+        const flow = val as FlowValue;
+
+        if (flow.skip) {
+          break;
+        } else if (flow.stop) {
+          return MK_NULL();
+        }
+      }
+    }
+  }
+
+  return MK_NULL();
 }

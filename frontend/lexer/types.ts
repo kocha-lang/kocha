@@ -27,6 +27,11 @@ export enum TokenType {
   If,
   ElseIf,
   Else,
+  // conditions
+  While,
+  For,
+  Continue,
+  Break,
 }
 
 export interface Token {
@@ -47,4 +52,8 @@ export const KEYWORDS: Record<string, TokenType> = {
   "oxiri": TokenType.Else,
   "va": TokenType.BinaryOperator,
   "yoki": TokenType.BinaryOperator,
+  // loops
+  "aylan": TokenType.While,
+  "qarama": TokenType.Continue,
+  "toxta": TokenType.Break,
 };

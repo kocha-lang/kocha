@@ -1,4 +1,4 @@
-import { MK_NUMBER, MK_STR, RuntimeValue } from "./values.ts";
+import { MK_FLOW, MK_NUMBER, MK_STR, RuntimeValue } from "./values.ts";
 import {
   type ArrayLiteral,
   AssignmentExpression,
@@ -17,6 +17,7 @@ import {
   Statement,
   StringLiteral,
   VariableDeclaration,
+  type WhileStatement,
 } from "../frontend/parser/ast.ts";
 import Environment from "./environment/env.ts";
 import {
@@ -36,6 +37,7 @@ import {
   evalProgram,
   evalReturnStatement,
   evalVarDeclaration,
+  evalWhileStatement,
 } from "./evaluate/statements.ts";
 
 export function interpret(astNode: Statement, env: Environment): RuntimeValue {
@@ -72,6 +74,12 @@ export function interpret(astNode: Statement, env: Environment): RuntimeValue {
       return evalElseStatement(astNode as ElseStatement, env);
     case "ArrayLiteral":
       return evalArrayExpression(astNode as ArrayLiteral, env);
+    case "WhileStatement":
+      return evalWhileStatement(astNode as WhileStatement, env);
+    case "ContinueStatement":
+      return MK_FLOW(false, true, false);
+    case "BreakStatement":
+      return MK_FLOW(false, false, true);
     default:
       console.error(
         "Interpreter: AST type not handled yet type:",

@@ -2,7 +2,9 @@ import {
   ArrayLiteral,
   AssignmentExpression,
   BinaryExpression,
+  type BreakStatement,
   CallExpression,
+  type ContinueStatement,
   ElifStatement,
   ElseStatement,
   Expression,
@@ -18,6 +20,7 @@ import {
   Statement,
   StringLiteral,
   VariableDeclaration,
+  type WhileStatement,
 } from "./ast.ts";
 import { tokenize } from "../lexer/index.ts";
 import { Token, TokenType } from "../lexer/types.ts";
@@ -34,16 +37,21 @@ export default class Parser {
   private at(): Token {
     return this.tokens[this.index] as Token;
   }
-
+  /** Moves one step forward and returns the previous token (came from) */
   private next(): Token {
     this.index++;
     return this.tokens[this.index - 1];
   }
 
+  /** Gives the line we are at */
   private line(): number {
     return this.at().line;
   }
 
+  /**
+   * Expects some type and moves one step forward \
+   * Returns prev values before move
+   */
   private expect(type: TokenType, error: string): Token {
     this.index++;
     const prev = this.tokens[this.index - 1];
@@ -59,6 +67,7 @@ export default class Parser {
     return prev;
   }
 
+  /** Terminates process with given error */
   private panic(msg: string): never {
     throw `Parse Error: ${msg} Line: ${this.line()}`;
   }
@@ -69,11 +78,13 @@ export default class Parser {
       case TokenType.Let:
       case TokenType.Const:
         return this.parseVarDeclaration();
+
       // functions
       case TokenType.Fn:
         return this.parseFnDeclaration();
       case TokenType.Return:
         return this.parseReturnStatement();
+
       // conditions
       case TokenType.If:
         return this.parseIfStatement();
@@ -83,6 +94,17 @@ export default class Parser {
       case TokenType.Else:
         this.panic("Else must have a parent IF stmt!");
         /* falls through */
+
+      // Loops
+      case TokenType.While:
+        return this.parseWhileStatement();
+      case TokenType.Continue:
+        this.skipMove();
+        return { kind: "ContinueStatement" } as ContinueStatement;
+      case TokenType.Break:
+        this.skipMove();
+        return { kind: "BreakStatement" } as BreakStatement;
+
       default:
         return this.parseExpression();
     }
@@ -275,6 +297,39 @@ export default class Parser {
     } as ElseStatement;
 
     return elseStmt;
+  }
+
+  private parseWhileStatement(): Statement {
+    this.next();
+    this.expect(TokenType.OpenParen, "Expected open paren on while loop");
+    const condition = this.parseLogicalExpression();
+    this.expect(TokenType.CloseParen, "Expected ')' after while statement");
+    this.expect(TokenType.OpenBrace, "Expected '{' after while statement");
+
+    const body: Statement[] = [];
+    while (
+      this.at().type != TokenType.EOF && this.at().type != TokenType.CloseBrace
+    ) {
+      body.push(this.parseStatement());
+    }
+
+    this.expect(TokenType.CloseBrace, "Expected '}' after while's body");
+
+    return {
+      kind: "WhileStatement",
+      condition,
+      body,
+    } as WhileStatement;
+  }
+
+  /**
+   * Moves one step forward and after that skips semicolon if faced.
+   */
+  private skipMove(): void {
+    this.next();
+    if (this.at().type == TokenType.Semicolon) {
+      this.next();
+    }
   }
 
   // - Orders Of Prescidence -
@@ -597,6 +652,13 @@ export default class Parser {
     }
   }
 
+  /**
+   * @param srcCode
+   * @returns Program to interpert
+   *
+   * Takes the source code and makes Abstract
+   * Syntax Tree to be interpreted
+   */
   public createAST(srcCode: string): Program {
     this.tokens = tokenize(srcCode);
 
