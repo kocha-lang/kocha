@@ -1,18 +1,5 @@
 
 
-xullas kfc = ["Nargiza", "Polvon"];
-
-jovob ism = gapir("Ismiz nima:");
-kfc.qosh(ism);
-korsat(kfc);
-
-kfc.sur();
-korsat(kfc);
-
-kfc.chop();
-korsat(kfc);
-
-kfc.yuqot();
-korsat(kfc);
-
-gapir("")
+agar(4 == 3){
+  korsat("Hello World!")
+}

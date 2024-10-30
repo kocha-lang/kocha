@@ -2,6 +2,7 @@ import {
   ArrayValue,
   FnValue,
   MK_NULL,
+  MK_NUMBER,
   MK_STR,
   NativeFnValue,
   NumberValue,
@@ -279,6 +280,8 @@ export function evalCallExpression(
     } else if (fn.value == "clear" && args.length == 0) {
       cur.values = [];
       return env.updateVariable(obj.symbol, cur, call.line);
+    } else if (fn.value == "getlength" && args.length == 0) {
+      return MK_NUMBER(cur.values.length);
     }
   }
 
@@ -340,6 +343,8 @@ export function evalMemberExpression(
       return MK_STR("shift");
     } else if (symbol == "yuqot") {
       return MK_STR("clear");
+    } else if (symbol == "razmer") {
+      return MK_STR("getlength");
     }
   }
 
