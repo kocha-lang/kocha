@@ -24,7 +24,7 @@ async function runExample() {
   const parser = new Parser();
   const env = createGlobalEnv();
 
-  const code = await Deno.readTextFile("./examples/test.kocha");
+  const code = await Deno.readTextFile("./examples/don_don_ziki.kocha");
   const program = parser.createAST(code);
   // console.log(program);
   interpret(program, env);
