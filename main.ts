@@ -6,7 +6,8 @@ function repl() {
   const parser = new Parser();
   const env = createGlobalEnv();
 
-  console.log("Kocha 1.0");
+  console.log("Kocha 1.0 Repl");
+  console.log("exit - chiqish uchun");
   while (true) {
     const input = prompt(">> ");
 
@@ -20,15 +21,25 @@ function repl() {
   }
 }
 
-async function runExample() {
+async function runCode(path: string) {
   const parser = new Parser();
   const env = createGlobalEnv();
 
-  const code = await Deno.readTextFile("./examples/don_don_ziki.kocha");
+  const code = await Deno.readTextFile(path);
   const program = parser.createAST(code);
   // console.log(program);
   interpret(program, env);
 }
 
-await runExample();
-// repl();
+function main() {
+  if (Deno.args.length == 0) {
+    repl();
+    return;
+  }
+
+  if (Deno.args.length == 1) {
+    runCode(Deno.args[0]);
+  }
+}
+
+main();
