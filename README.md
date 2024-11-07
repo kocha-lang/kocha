@@ -44,7 +44,7 @@ oxiri{
 
 ## Contributors
 
-- [Bobomurd](https://github.com/mmnvb) - Assosiy maintainer
+- [Bobomurod](https://github.com/mmnvb) - Assosiy maintainer
 
 <div align="center">
   <i>© Bobomurod, 2024 ⭐️</i>
