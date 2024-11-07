@@ -3,7 +3,7 @@
     <img
       alt="Kocha dasturlash tili - Birinchi o‘zbek ko‘cha tilidan ilhomlangan dasturlash tili"
       width="30%"
-      src="https://raw.githubusercontent.com/kocha-lang/docs/main/src/assets/22.png"
+      src="https://github.com/kocha-lang/docs/blob/main/src/assets/22.png"
     >
   </picture>
 
