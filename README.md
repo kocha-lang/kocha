@@ -22,7 +22,6 @@ _Birinchi o‘zbek ko‘cha tilidan ilhomlangan dasturlash tili_
 
 Kocha Lang - bu hobi sifatida yaratilgan open source loyiha. Bu tilning asosiy
 maqsadi dasturlashni o’zgacha tarzda tajriba qilishdir.
-
 U interpretatsiya qilinadigan til bo’lib, u [Deno](https://deno.com/) asosida
 ishlaydi.
 
