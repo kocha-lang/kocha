@@ -20,7 +20,7 @@ _Birinchi o‘zbek ko‘cha tilidan ilhomlangan dasturlash tili_
 
 ## Kocha Lang o'zi nima?
 
-Kocha Lang - bu hobi sifatida yaratilgan open source loyiha. Bu tilning asosiy
+Kocha Lang - bu xobi sifatida yaratilgan open source loyiha. Bu tilning asosiy
 maqsadi dasturlashni o’zgacha tarzda tajriba qilishdir.
 U interpretatsiya qilinadigan til bo’lib, u [Deno](https://deno.com/) asosida
 ishlaydi.
@@ -46,5 +46,5 @@ oxiri{
 - [Bobomurod](https://github.com/mmnvb) - Assosiy maintainer
 
 <div align="center">
-  <i>© Bobomurod, 2024 ⭐️</i>
+  <i>© Bobomurod, 2025 ⭐️</i>
 </div>
