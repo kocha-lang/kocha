@@ -6,12 +6,12 @@ function repl() {
   const parser = new Parser();
   const env = createGlobalEnv();
 
-  console.log("Kocha 1.0 Repl");
+  console.log("Kocha 1.1 Repl");
   console.log("exit - chiqish uchun");
   while (true) {
     const input = prompt(">> ");
 
-    if (!input || input.includes("exit")) {
+    if (input?.trim() == 'exit') {
       Deno.exit(1);
     }
 
@@ -27,7 +27,7 @@ async function runCode(path: string) {
 
   const code = await Deno.readTextFile(path);
   const program = parser.createAST(code);
-  // console.log(program);
+  console.log(program);
   interpret(program, env);
 }
 
