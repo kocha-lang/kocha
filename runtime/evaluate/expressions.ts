@@ -57,6 +57,25 @@ function evalNumericBinaryExpression(
   return { type: "number", value: result };
 }
 
+function evalStringBinaryExpression(
+  left: StringValue,
+  right: StringValue,
+  operator: string,
+  line: number = -1
+): StringValue {
+  let result: string;
+
+  switch (operator) {
+    case "+":
+      result = left.value + right.value;
+      break;
+    default:
+      panic("Faqat concat qilish mumkin!", line);
+  }
+
+  return { type: "string", value: result };
+}
+
 function evalRelationalBinaryExpr(
   left: NumberValue | StringValue | BoolValue,
   right: NumberValue | StringValue | BoolValue,
@@ -164,6 +183,15 @@ export function evalBinaryExpression(
       left as NumberValue,
       right as NumberValue,
       binop.operator,
+    );
+  }
+
+  if (bothStrings()) {
+    return evalStringBinaryExpression(
+      left as StringValue,
+      right as StringValue,
+      binop.operator,
+      binop.line,
     );
   }
 
