@@ -11,8 +11,12 @@ function repl() {
   while (true) {
     const input = prompt(">> ");
 
-    if (input?.trim() == 'exit') {
+    if (input?.trim() == "exit") {
       Deno.exit(1);
+    }
+
+    if (!input) {
+      continue;
     }
 
     const program = parser.createAST(input);
@@ -27,7 +31,6 @@ async function runCode(path: string) {
 
   const code = await Deno.readTextFile(path);
   const program = parser.createAST(code);
-  console.log(program);
   interpret(program, env);
 }
 

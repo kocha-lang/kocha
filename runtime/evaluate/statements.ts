@@ -66,25 +66,36 @@ export function evalReturnStatement(
   return interpret(statement.value, env);
 }
 
+function evalNestedReturnStatement(
+  statement: ReturnStatement,
+  env: Environment,
+): FlowValue {
+  const interpretedValue = interpret(statement, env);
+  return MK_FLOW(true, false, true, interpretedValue);
+}
+
 export function evalIfStatement(
   statement: IfStatement,
   env: Environment,
 ): FlowValue {
   const scope = new Environment(env);
   const condition = interpret(statement.condition, env);
+
   // in case parent if statement must be called
   if (condition.value) {
     // execute line by line
-    // can customize to handle break and continue keywords
-    // or return a value from a statement but don't need it now
     for (const stmt of statement.body) {
+      if (stmt.kind == "ReturnStatement") {
+        return evalNestedReturnStatement(stmt as ReturnStatement, scope);
+      }
+
       const val = interpret(stmt, scope);
 
       if (val.type == "flow") {
         const flow = val as FlowValue;
 
         if (flow.skip || flow.stop) {
-          return MK_FLOW(true, flow.skip, flow.stop);
+          return MK_FLOW(true, flow.skip, flow.stop, flow.returnValue);
         }
       }
     }
@@ -101,7 +112,7 @@ export function evalIfStatement(
 
         if (flow.catched) {
           if (flow.skip || flow.stop) {
-            return MK_FLOW(true, flow.skip, flow.stop);
+            return MK_FLOW(true, flow.skip, flow.stop, flow.returnValue);
           }
           break;
         }
@@ -121,16 +132,18 @@ export function evalElifStatement(
 
   if (condition.value) {
     // execute line by line
-    // can customize to handle break and continue keywords
-    // or return a value from a statement but don't need it now
     for (const stmt of statement.body) {
+      if (stmt.kind == "ReturnStatement") {
+        return evalNestedReturnStatement(stmt as ReturnStatement, scope);
+      }
+
       const val = interpret(stmt, scope);
 
       if (val.type == "flow") {
         const flow = val as FlowValue;
 
         if (flow.skip || flow.stop) {
-          return MK_FLOW(true, flow.skip, flow.stop);
+          return MK_FLOW(true, flow.skip, flow.stop, flow.returnValue);
         }
       }
     }
@@ -148,13 +161,17 @@ export function evalElseStatement(
   const scope = new Environment(env);
 
   for (const stmt of statement.body) {
+    if (stmt.kind == "ReturnStatement") {
+      return evalNestedReturnStatement(stmt as ReturnStatement, scope);
+    }
+
     const val = interpret(stmt, scope);
 
     if (val.type == "flow") {
       const flow = val as FlowValue;
 
       if (flow.skip || flow.stop) {
-        return MK_FLOW(true, flow.skip, flow.stop);
+        return MK_FLOW(true, flow.skip, flow.stop, flow.returnValue);
       }
     }
   }
@@ -182,7 +199,7 @@ export function evalWhileStatement(
         if (flow.skip) {
           break;
         } else if (flow.stop) {
-          return MK_NULL();
+          return flow.returnValue || MK_NULL();
         }
       }
     }

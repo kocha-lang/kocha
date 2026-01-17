@@ -1,5 +1,6 @@
 import {
   ArrayValue,
+  FlowValue,
   FnValue,
   MK_NULL,
   MK_NUMBER,
@@ -61,7 +62,7 @@ function evalStringBinaryExpression(
   left: StringValue,
   right: StringValue,
   operator: string,
-  line: number = -1
+  line: number = -1,
 ): StringValue {
   let result: string;
 
@@ -274,13 +275,25 @@ export function evalCallExpression(
       }
 
       let result: RuntimeValue = MK_NULL();
+
       // execute line by line
       for (const statement of func.body) {
         if (statement.kind == "ReturnStatement") {
           result = interpret(statement, scope);
           return result;
         }
+
         result = interpret(statement, scope);
+
+        // handle return statement that comes deeep from conditions.
+        // shitty implementation but it is what it is.
+        if (result.type == "flow") {
+          const flow = result as FlowValue;
+
+          if (flow.stop && flow.returnValue) {
+            return flow.returnValue;
+          }
+        }
       }
       return result;
     }

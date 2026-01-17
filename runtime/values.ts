@@ -37,11 +37,18 @@ export interface BoolValue extends RuntimeValue {
   value: boolean;
 }
 
+// This is a runtime value that is used to communicate conditional statments with each other and control the flow
+// Since the current implementation does not allow me to "throw" a value from deep children node to top parent ancestor directly
+// So I have to just pass back the information that "hey we found an return / continue / break statement somewhere down below so don't execute other code"
+// to all awaiting recursive calls.
+// This is fine for a toy programming language but maybe some day i would rework it since it makes the cody harder to maintain.\
+// Currently used in : if, if-else, else, while, function evaluations.
 export interface FlowValue extends RuntimeValue {
   type: "flow";
   catched: boolean;
   skip: boolean;
   stop: boolean;
+  returnValue?: RuntimeValue;
 }
 
 export function MK_NUMBER(n: number) {
@@ -64,10 +71,16 @@ export function MK_STR(value: string) {
  * @param catched did it catch by children of if stmt or not
  * @param skip did it faced a continue stmt
  * @param stop did it faced a break stmt
+ * @param returnValue value returned by return statement
  * @returns
  */
-export function MK_FLOW(catched: boolean, skip: boolean, stop: boolean) {
-  return { type: "flow", catched, skip, stop } as FlowValue;
+export function MK_FLOW(
+  catched: boolean,
+  skip: boolean,
+  stop: boolean,
+  returnValue?: RuntimeValue,
+) {
+  return { type: "flow", catched, skip, stop, returnValue } as FlowValue;
 }
 
 export interface ObjectValue extends RuntimeValue {
