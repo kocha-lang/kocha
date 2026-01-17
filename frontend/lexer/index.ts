@@ -1,5 +1,6 @@
 import { KEYWORDS, Token, TokenType } from "./types.ts";
 import { isAlpha, isEscapeChar, isInt } from "./misc.ts";
+import { lexerError } from "../errors/index.ts";
 
 export function tokenize(srcCode: string): Token[] {
   const tokens = new Array<Token>();
@@ -31,8 +32,7 @@ export function tokenize(srcCode: string): Token[] {
       saveAlpha();
     } // handling escape characters word
     else if (!isEscapeChar(src[index]) && tempWord) {
-      console.log("Unhandled character:", src[index]);
-      Deno.exit(1);
+      lexerError("Cannot divide by zero!", index);
     }
     tempWord = "";
   };

@@ -39,6 +39,7 @@ import {
   evalVarDeclaration,
   evalWhileStatement,
 } from "./evaluate/statements.ts";
+import panic from "./errors/panic.ts";
 
 export function interpret(astNode: Statement, env: Environment): RuntimeValue {
   switch (astNode.kind) {
@@ -81,10 +82,9 @@ export function interpret(astNode: Statement, env: Environment): RuntimeValue {
     case "BreakStatement":
       return MK_FLOW(false, false, true);
     default:
-      console.error(
-        "Interpreter: AST type not handled yet type:",
-        astNode,
+      panic(
+        `Interpreter: AST type not handled yet type: ${astNode}`,
+        astNode.line,
       );
-      Deno.exit(0);
   }
 }

@@ -46,8 +46,7 @@ function evalNumericBinaryExpression(
       break;
     case "/":
       if (right.value == 0) {
-        console.error("Cannot divide by zero!");
-        Deno.exit(1);
+        panic("Cannot divide by zero!", -1);
       }
       result = left.value / right.value;
       break;

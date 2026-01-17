@@ -24,6 +24,7 @@ import {
 } from "./ast.ts";
 import { tokenize } from "../lexer/index.ts";
 import { Token, TokenType } from "../lexer/types.ts";
+import { parserError } from "../errors/index.ts";
 
 export default class Parser {
   private tokens: Token[] = [];
@@ -56,13 +57,13 @@ export default class Parser {
     this.index++;
     const prev = this.tokens[this.index - 1];
     if (!prev || prev.type != type) {
-      console.error(
-        `Parser error: ${error} ->
+      parserError(
+        `${error} ->
         ${prev} - 
         Expected: ${type}
-        Line: ${this.line()}`,
+        `,
+        this.line(),
       );
-      Deno.exit(1);
     }
     return prev;
   }
