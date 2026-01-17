@@ -1,0 +1,16 @@
+tema foo(num) {
+  agar (num > 5) {
+    xullas a = num + 5;
+
+    agar (a % 2 == 0) {
+      qaytar "Katta va even";
+    }
+    agar (a % 2 == 1) {
+      qaytar "Katta va odd";
+    }
+  }
+  
+  korsat("bilmiman ukam :(");
+}
+
+korsat(foo(7));

@@ -1,0 +1,13 @@
+{
+  "tasks": {
+    "interpret": "deno run ./platforms/deno/index.ts",
+    "build-cli": "deno compile --output kocha ./platforms/deno/index.ts",
+    "build-macos": "deno compile --target x86_64-apple-darwin --output kocha ./platforms/deno/index.ts",
+    "build-linux": "deno compile --target x86_64-unknown-linux-gnu  --output kocha ./platforms/deno/index.ts",
+    "build-windows": {
+      "command": "deno compile --target x86_64-pc-windows-msvc --output kocha ./platforms/deno/index.ts",
+      "description": "Compiles to windows. Deno version must be exactly 2.2.5!"
+    },
+    "build-browser": "deno bundle --platform browser --output kocha.js ./platforms/shared/runner.ts"
+  }
+}
