@@ -7,7 +7,7 @@
     >
   </picture>
 
-[Website][Kocha] | [Boshlash] | [Qollanma] | [Qoshimcha]
+[Website][Kocha] | [Boshlash] | [Qollanma] | [Qoshimcha] | [Sinab ko'ring]
 
 _Birinchi o‘zbek ko‘cha tilidan ilhomlangan dasturlash tili_
 
@@ -17,6 +17,7 @@ _Birinchi o‘zbek ko‘cha tilidan ilhomlangan dasturlash tili_
 [Boshlash]: https://www.kocha-lang.uz/start/install/
 [Qollanma]: https://www.kocha-lang.uz/start/install/
 [Qoshimcha]: https://github.com/kocha-lang/extension
+[Sinab ko'ring]: https://play.kocha-lang.uz
 
 ## Kocha Lang o'zi nima?
 
@@ -45,5 +46,5 @@ oxiri{
 - [Bobomurod](https://github.com/mmnvb) - Assosiy maintainer
 
 <div align="center">
-  <i>© Bobomurod, 2026 ⭐️</i>
+  <i>© mmnvb</i>
 </div>
